@@ -91,7 +91,7 @@ export default function Home() {
             className="flex flex-col cursor-pointer active:scale-95 transition-transform h-48"
           >
             {/* Game Image */}
-            <div className="h-40 w-full p-1">
+            <div className="h-38 w-full p-1">
               <div className="w-full h-full border-4 border-blue-100 rounded-xl overflow-hidden bg-white shadow-sm">
                 <img 
                   src={game.image} 
