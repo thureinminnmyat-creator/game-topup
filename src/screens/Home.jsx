@@ -88,7 +88,7 @@ export default function Home() {
           <div 
             key={game.id} 
             onClick={() => navigate(`/topup/${game.id}`)} 
-            className="flex flex-col cursor-pointer active:scale-95 transition-transform h-48"
+            className="flex flex-col cursor-pointer active:scale-95 transition-transform h-40"
           >
             {/* Game Image */}
             <div className="h-38 w-full p-1">
