@@ -5,72 +5,112 @@ import { Bell, User, Gift, Globe, Megaphone, ChevronRight } from 'lucide-react';
 export default function Home() {
   const navigate = useNavigate();
   const [bannerIndex, setBannerIndex] = useState(0);
-  const banners = ["BANNER 1", "BANNER 2", "BANNER 3"];
 
-  const nextBanner = () => {
-    setBannerIndex((prev) => (prev + 1) % banners.length);
-  };
+  // Banner ပုံလမ်းကြောင်းများ
+  const banners = ["/images/banner1.jpg", "/images/banner2.jpg", "/images/banner3.jpg"];
+  const nextBanner = () => setBannerIndex((prev) => (prev + 1) % banners.length);
 
+  // Games ပုံလမ်းကြောင်းများ (စာလုံးပေါင်း အနည်းငယ် ပြင်ပေးထားပါသည်)
   const games = [
-    { id: 'mobilelegends', name: 'MLBB', image: 'https://img.icons8.com/color/96/mobile-legends.png' },
-    { id: 'magicchessgogo', name: 'Magic Chess', image: 'https://img.icons8.com/color/96/chess.png' },
-    { id: 'hok', name: 'HOK', image: 'https://img.icons8.com/color/96/king.png' },
-    { id: 'wherewindsmeet', name: 'WWM', image: 'https://img.icons8.com/color/96/wind.png' },
-    { id: 'bloodstrike', name: 'Blood Strike', image: 'https://img.icons8.com/color/96/gun.png' },
-    { id: 'identityv', name: 'Identity V', image: 'https://img.icons8.com/color/96/ghost.png' },
+    { id: 'mobilelegends', name: 'MLBB', image: '/images/mlbb.jpg' },
+    { id: 'magicchessgogo', name: 'Magic Chess', image: '/images/mcgg.jpg' },
+    { id: 'hok', name: 'Pubg', image: '/images/pubg.jpg' },
+    { id: 'wherewindsmeet', name: 'Free Fire', image: '/images/ff.jpg' },
+    { id: 'bloodstrike', name: 'Delta Force', image: '/images/dtfoc.jpg' }, 
+    { id: 'identityv', name: 'Genshin Impact', image: '/images/ge.jpg' }, 
   ];
 
   return (
-    <div className="bg-[#f0f8ff] min-h-full"> 
-      <div className="px-4 pt-4">
-
-        {/* 1. Header Row */}
-        <div className="flex justify-between items-center mb-3">
-          <div className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white text-[14px]">WAM</div>
-          <div className="flex items-center gap-2">
-            <button className="p-2 bg-white rounded-full text-gray-600 border border-blue-100"><Bell size={18} /></button>
-            <button className="px-4 py-2 bg-white border border-blue-200 rounded-full text-sm font-semibold text-blue-600 flex items-center gap-1"><User size={16} /> Login</button>
-          </div>
-        </div>
-
-        {/* 2. Welcome Row */}
-        <div className="flex justify-between items-center mb-3">
-          <p className="text-gray-700 font-bold text-sm">Welcome 👋</p>
-          <div className="flex items-center gap-2">
-            <button className="px-3 py-1 bg-white border border-blue-300 rounded-full text-[10px] font-bold text-gray-700"><Gift size={11} className="inline mr-1 text-pink-500"/> Spin</button>
-            <button className="px-3 py-1 bg-white border border-blue-300 rounded-full text-[10px] font-bold text-gray-700 uppercase"><Globe size={11} className="inline mr-1 text-blue-500"/> En</button>
-          </div>
-        </div>
-
-        {/* 3. Banner */}
-        <div className="relative mb-3">
-            <div className="w-full h-40 bg-gradient-to-br from-blue-500 to-blue-300 rounded-3xl flex items-center justify-center text-white font-bold text-xl">
-                {banners[bannerIndex]}
-            </div>
-            <button onClick={nextBanner} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 p-2 rounded-full backdrop-blur-sm">
-                <ChevronRight size={20} className="text-white" />
+    <div className="bg-[#f0f8ff] min-h-screen flex flex-col p-3 gap-2 pb-6"> 
+      
+      {/* 1. Header Row */}
+      <div className="flex justify-between items-center">
+        <img 
+          src="/images/logo.jpg" 
+          alt="Logo" 
+          className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-lg"
+        />
+        <div className="flex gap-2">
+            <button className="p-2 bg-white rounded-full text-gray-600 shadow-sm">
+              <Bell size={18} />
+            </button>
+            <button className="px-3 py-1 bg-white border border-blue-200 rounded-full text-sm font-semibold text-blue-600 flex items-center gap-1 shadow-sm">
+              <User size={16} /> Login
             </button>
         </div>
-
-        {/* 4. Marquee */}
-        <div className="bg-white rounded-lg p-2 mb-3 shadow-sm flex items-center">
-          <Megaphone size={14} className="text-blue-500 mr-2" />
-          <marquee className="text-[10px] font-medium text-gray-600">Wam Trading - အမြန်ဆုံးနှင့် အယုံကြည်ရဆုံး ဂိမ်းငွေဖြည့်ဝန်ဆောင်မှု။</marquee>
-        </div>
-
-        {/* 5. Games Grid (Icon ကြီးထားပြီး နေရာလွတ်မထားတော့ပါ) */}
-        <div className="grid grid-cols-3 gap-3">
-          {games.map((game) => (
-            <div key={game.id} onClick={() => navigate(`/topup/${game.id}`)} className="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform">
-              <div className="w-16 h-16 bg-gray-50 rounded-xl mb-2 flex items-center justify-center p-1 border border-gray-100">
-                <img src={game.image} alt={game.name} className="w-full h-full object-contain" />
-              </div>
-              <h3 className="text-[11px] font-bold text-gray-700 text-center">{game.name}</h3>
-            </div>
-          ))}
-        </div>
-
       </div>
+
+      {/* 2. Welcome Row */}
+      <div className="flex justify-between items-center">
+        <p className="text-gray-700 font-bold text-sm">Welcome 👋</p>
+        <div className="flex gap-2">
+            <button className="px-2 py-1 bg-white border border-blue-300 rounded-full text-[10px] font-bold text-gray-700 shadow-sm">
+              <Gift size={10} className="inline mr-1 text-pink-500"/> Spin
+            </button>
+            <button className="px-2 py-1 bg-white border border-blue-300 rounded-full text-[10px] font-bold text-gray-700 uppercase shadow-sm">
+              <Globe size={10} className="inline mr-1 text-blue-500"/> En
+            </button>
+        </div>
+      </div>
+
+      {/* 3. Banner */}
+      <div className="relative w-full">
+          <div className="w-full h-60 bg-blue-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-md">
+              <img src={banners[bannerIndex]} alt="Banner" className="w-full h-full object-cover" />
+          </div>
+          <button 
+            onClick={nextBanner} 
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 p-2 rounded-full backdrop-blur-sm active:scale-95 transition-transform"
+          >
+              <ChevronRight size={18} className="text-white" />
+          </button>
+      </div>
+
+      {/* 4. Marquee */}
+      <div className="bg-white rounded-lg p-2 shadow-sm flex items-center">
+        <Megaphone size={14} className="text-blue-500 mr-2 shrink-0" />
+        <marquee className="text-[10px] font-medium text-gray-600 pt-1">
+          Faygo games shop မှာ games item များကို အမြန်ဆုံးနဲ့အသက်သာဆုံး ယုံကြည်စိတ်ချစွာ ဝယ်ယူ ရရှိနိုင်ပါပီ- အမြန်ဆုံးနှင့် အယုံကြည်ရဆုံး ဂိမ်းငွေဖြည့်ဝန်ဆောင်မှု။
+        </marquee>
+      </div>
+
+      {/* 5. Popular Games Header */}
+      <div className="flex justify-between items-center px-1 mt-1">
+          <h2 className="text-sm font-bold text-gray-800">Popular Games</h2>
+          <button className="text-[11px] font-bold text-blue-500 flex items-center hover:underline">
+            view all <ChevronRight size={12} />
+          </button>
+      </div>
+
+      {/* 6. Games Grid */}
+      <div className="grid grid-cols-3 gap-3">
+        {games.map((game) => (
+          <div 
+            key={game.id} 
+            onClick={() => navigate(`/topup/${game.id}`)} 
+            className="flex flex-col cursor-pointer active:scale-95 transition-transform h-48"
+          >
+            {/* Game Image */}
+            <div className="h-40 w-full p-1">
+              <div className="w-full h-full border-4 border-blue-100 rounded-xl overflow-hidden bg-white shadow-sm">
+                <img 
+                  src={game.image} 
+                  alt={game.name} 
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+            </div>
+            
+            {/* Game Name */}
+            <div className="flex-grow flex items-center justify-center pt-1">
+              <h3 className="text-[11px] font-bold text-gray-700 text-center leading-tight">
+                {game.name}
+              </h3>
+            </div>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }
