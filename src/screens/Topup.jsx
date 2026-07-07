@@ -25,8 +25,8 @@ export default function Topup() {
     axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/catalogue`)
       .then((response) => {
         if (response.data && response.data.success) {
-          // RapidAPI မှလာသော data.data သည် array ဖြစ်သည်ဟု ယူဆပါသည်
-          setPackages(response.data.data);
+          // ⚠️ catalogues ဆိုသည့် အခန်းထဲမှ Data ကိုသာ ဆွဲယူရန် ပြင်ဆင်ထားပါသည်
+          setPackages(response.data.data.catalogues || []);
         }
         setLoading(false);
       })

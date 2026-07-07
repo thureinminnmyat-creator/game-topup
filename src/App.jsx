@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MobileContainer from './components/MobileContainer.jsx';
 import Navbar from './components/Navbar.jsx';
 
+import Login from './screens/Login.jsx';
+import Signup from './screens/Signup.jsx';
 import Home from './screens/Home.jsx';
 import Shop from './screens/Shop.jsx';
 import Wallet from './screens/Wallet.jsx';
@@ -15,9 +17,12 @@ export default function App() {
     <Router>
       <MobileContainer>
         
-        {/* flex-1 ဖြင့် ကျန်တဲ့နေရာအကုန်ယူပြီး ဒီအကွက်လေးထဲမှာပဲ Scroll ဖြစ်စေပါမည် */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        {/* bg-[#121722] ဖြင့် Dark Theme အရောင် ပြောင်းထားပါသည် */}
+        <div className="flex-1 overflow-y-auto bg-[#121722]">
           <Routes>
+            {/* Route အားလုံးကို Routes အဖွင့်နှင့် အပိတ် ကြားတွင်သာ ထားရပါမည် */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/topup/:gameCode" element={<Topup />} />
@@ -27,7 +32,6 @@ export default function App() {
           </Routes>
         </div>
         
-        {/* Navbar က အောက်ဆုံးမှာ သူ့နေရာနဲ့သူ အသေကပ်နေပါပြီ */}
         <Navbar />
 
       </MobileContainer>
