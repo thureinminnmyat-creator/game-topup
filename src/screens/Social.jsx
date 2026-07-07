@@ -95,7 +95,7 @@ export default function Social() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24 px-4 pt-6">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6">
       
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2.5 bg-teal-500/20 text-teal-400 rounded-xl">

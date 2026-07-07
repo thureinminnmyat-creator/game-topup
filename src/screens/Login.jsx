@@ -39,7 +39,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans flex flex-col">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans flex flex-col">
       {/* Header */}
       <div className="p-4 flex items-center">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white">
@@ -52,8 +52,8 @@ export default function Login() {
           <div className="w-16 h-16 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-2xl flex items-center justify-center text-[#121722] font-black text-2xl shadow-lg shadow-teal-500/20 mx-auto mb-4">
             W
           </div>
-          <h2 className="text-2xl font-bold">Wam Trading သို့ ပြန်လည်ကြိုဆိုပါသည်</h2>
-          <p className="text-sm text-gray-400 mt-2">ဆက်လက်လုပ်ဆောင်ရန် အကောင့်ဝင်ပါ</p>
+          <h2 className="text-2xl font-bold">Faygo Games Shopမှပြန်လည်ကြိုဆိုပါသည်</h2>
+          <p className="text-sm text-gray-400 mt-2">appအား အသုံးပြုရန် အကောင့်ဝင်ပေးပါ</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

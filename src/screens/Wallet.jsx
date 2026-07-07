@@ -30,7 +30,7 @@ export default function Wallet() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24 px-4 pt-6">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6">
       
       {/* 👈 အသစ်ထည့်ထားသော Back ခလုတ်နှင့် Header */}
       <div className="flex items-center mb-6">

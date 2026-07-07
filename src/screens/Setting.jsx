@@ -103,7 +103,7 @@ export default function Setting() {
   }
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24 px-4 pt-6 relative">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6 relative">
       <h2 className="text-2xl font-bold mb-6">ဆက်တင် (Settings)</h2>
 
       {/* ၁။ Profile & Wallet Section (တကယ့် Database က ဒေတာများ ပြပါမည်) */}
@@ -129,7 +129,7 @@ export default function Setting() {
             </div>
           </div>
           <button 
-            onClick={() => navigate('/wallet')} 
+            onClick={() => navigate('/deposit')} 
             className="bg-teal-500 hover:bg-teal-600 text-[#121722] px-4 py-2 rounded-lg text-xs font-bold transition shadow-md"
           >
             ငွေဖြည့်ရန်

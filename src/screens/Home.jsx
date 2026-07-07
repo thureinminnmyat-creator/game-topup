@@ -31,7 +31,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24">
       
       {/* 1. Header Section */}
       <header className="flex justify-between items-center p-4">

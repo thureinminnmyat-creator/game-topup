@@ -43,7 +43,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans flex flex-col">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans flex flex-col">
       {/* Header */}
       <div className="p-4 flex items-center">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white">
@@ -54,7 +54,7 @@ export default function Signup() {
       <div className="flex-1 px-6 flex flex-col justify-center pb-20">
         <div className="mb-10 text-center">
           <h2 className="text-2xl font-bold">အကောင့်သစ် ဖွင့်ပါ</h2>
-          <p className="text-sm text-gray-400 mt-2">Wam Trading မှ ကြိုဆိုပါတယ်</p>
+          <p className="text-sm text-gray-400 mt-2">Fago games Shopမှ ကြိုဆိုပါတယ်</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">

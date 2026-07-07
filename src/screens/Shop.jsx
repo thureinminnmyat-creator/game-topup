@@ -30,7 +30,7 @@ export default function Shop() {
   );
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24 px-4 pt-6">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6">
       
       {/* Header & Title */}
       <h2 className="text-2xl font-bold mb-1">ဂိမ်းဆိုင် (Shop)</h2>
