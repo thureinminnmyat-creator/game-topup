@@ -8,6 +8,7 @@ import Shop from './screens/Shop.jsx';
 import Wallet from './screens/Wallet.jsx';
 import Social from './screens/Social.jsx';
 import Setting from './screens/Setting.jsx';
+import Topup from './screens/Topup.jsx';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/topup/:gameCode" element={<Topup />} />
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/social" element={<Social />} />
             <Route path="/setting" element={<Setting />} />

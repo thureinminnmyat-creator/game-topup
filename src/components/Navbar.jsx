@@ -15,8 +15,9 @@ export default function Navbar() {
   ];
 
   return (
-    // absolute ကို ဖြုတ်ပြီး shrink-0 ဖြင့် နေရာအသေယူပါမည်
-    <div className="shrink-0 h-16 bg-white border-t border-gray-200 flex justify-around items-center z-50">
+    // left-1/2 နဲ့ -translate-x-1/2 ကိုသုံးပြီး မျက်နှာပြင်အလယ်မှာ သေချာချထားပေးပါမယ်
+    // w-[calc(100%-2rem)] max-w-[400px] သုံးထားလို့ ဖုန်း Screen အပြင်ကို လုံးဝ ထွက်မသွားတော့ပါဘူး
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[400px] bg-[#1A2235]/95 backdrop-blur-md border border-slate-700 rounded-2xl flex justify-around items-center py-1.5 px-2 shadow-2xl z-50">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.id;
@@ -25,12 +26,16 @@ export default function Navbar() {
           <button
             key={item.id}
             onClick={() => navigate(item.id)}
-            className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-              isActive ? 'text-blue-600' : 'text-gray-400'
+            className={`flex flex-col items-center justify-center w-14 h-12 rounded-xl transition-all duration-300 ${
+              isActive 
+                ? 'bg-teal-500/20 text-teal-400' 
+                : 'text-gray-400 hover:text-white'
             }`}
           >
             <Icon size={20} className={isActive ? 'scale-110 transition-transform' : ''} />
-            <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+            <span className={`text-[9px] mt-1 ${isActive ? 'font-semibold' : 'font-medium'}`}>
+              {item.label}
+            </span>
           </button>
         );
       })}
