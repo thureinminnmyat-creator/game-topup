@@ -29,7 +29,6 @@ const HomePage = () => {
         setLoading(false);
       });
   }, []);
-
   return (
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24">
       
