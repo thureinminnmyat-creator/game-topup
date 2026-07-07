@@ -9,14 +9,24 @@ export default function AdminGames() {
 
   useEffect(() => { fetchGames(); }, []);
 
+    // Game စာရင်းကို Database ထဲကနေ ဆွဲထုတ်ရန်
   const fetchGames = async () => {
     try {
-      const res = await axios.get('https://topup-bk-production.up.railway.app/api/topup/games');
-      setGames(res.data.data || []);
+      // ⚠️ သင့် Backend Route က ဒီ URL ဖြစ်ရပါမယ် (ဥပမာ - /api/admin/games)
+      const adminToken = localStorage.getItem('adminToken');
+      const res = await axios.get('https://topup-bk-production.up.railway.app/api/admin/games', {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      
+      // Backend ကပေးတဲ့ Response ပုံစံပေါ်မူတည်ပြီး ပြင်ပါ
+      // သင့် Backend က res.json({ success: true, games: [...] }) ဆိုရင် res.data.games ကို သုံးပါ
+      setGames(res.data.games || []); 
     } catch (err) {
-      console.error("Fetch Error", err);
+      console.error("Fetch Games Error:", err);
+      alert("ဂိမ်းစာရင်း ဆွဲထုတ်၍ မရပါ။");
     }
   };
+
 
   // Add Game
   const addGame = async () => {
