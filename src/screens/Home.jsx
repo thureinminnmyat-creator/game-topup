@@ -84,11 +84,11 @@ const HomePage = () => {
 
         {/* 3. Action Buttons */}
         <div className="flex flex-col gap-3 mb-6">
-          <button className="flex items-center justify-center gap-2 w-full py-3 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-700 transition">
+          <button className="flex items-center justify-center gap-2 w-full py-3 bg-[#rgba] border border-slate-700 rounded-xl hover:bg-slate-700 transition">
             <Gift size={20} className="text-orange-400" />
             <span className="font-medium text-teal-400">Claim Daily Bonus</span>
           </button>
-          <button className="flex items-center justify-center gap-2 w-full py-3 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-700 transition">
+          <button className="flex items-center justify-center gap-2 w-full py-3 bg-[#rgba] border border-slate-700 rounded-xl hover:bg-slate-700 transition">
             <HelpCircle size={20} className="text-purple-400" />
             <span className="font-medium text-yellow-500">Lucky Spin Wheel</span>
           </button>
@@ -123,7 +123,7 @@ const HomePage = () => {
               <div 
                 key={game.id} 
                 onClick={() => navigate('/shop')} 
-                className="min-w-[120px] sm:min-w-[150px] bg-[#1A2235] rounded-xl overflow-hidden shadow-lg flex-shrink-0 cursor-pointer hover:ring-2 ring-teal-500 transition"
+                className="min-w-[120px] sm:min-w-[150px] bg-[#rgba] rounded-xl overflow-hidden shadow-lg flex-shrink-0 cursor-pointer hover:ring-2 ring-teal-500 transition"
               >
                 <img 
                   src={game.image_url} 

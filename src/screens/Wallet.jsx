@@ -1,27 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ShoppingCart, CheckCircle, XCircle, ChevronLeft } from 'lucide-react'; // 👈 ChevronLeft အသစ်ထည့်ထားသည်
-import { useNavigate } from 'react-router-dom'; // 👈 Page ကူးရန်
+import { ShoppingCart, CheckCircle, XCircle, ChevronLeft, ArrowDownCircle, Clock } from 'lucide-react'; 
+import { useNavigate } from 'react-router-dom'; 
 
 export default function Wallet() {
   const [activeTab, setActiveTab] = useState('order');
+  
+  // States များ
   const [orders, setOrders] = useState([]);
+  const [transactions, setTransactions] = useState([]); // 👈 ငွေသွင်းမှတ်တမ်းများ သိမ်းရန်
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // 👈 Navigate function ကြေညာထားသည်
+  
+  const navigate = useNavigate(); 
 
   useEffect(() => {
-    // Backend က Test API ဆီကနေ အကောင့်ဝင်စရာမလိုဘဲ ဒေတာတောင်းခြင်း
-    axios.get('https://topup-bk-production.up.railway.app/api/topup/my-orders-test')
-      .then((response) => {
-        if (response.data && response.data.success) {
-          setOrders(response.data.orders);
+    const fetchData = async () => {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        alert("Login Token မရှိပါ။ ကျေးဇူးပြု၍ အကောင့်ပြန်ဝင်ပါ။");
+        setLoading(false);
+        return;
+      }
+
+      // =====================================
+      // ၁။ ငွေသွင်းမှတ်တမ်းများ (Transactions)
+      // =====================================
+      try {
+        const transRes = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/history', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (transRes.data && transRes.data.success) {
+          setTransactions(transRes.data.data);
         }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching orders:", error);
-        setLoading(false);
-      });
+      } catch (error) {
+        console.error("History Error:", error);
+        alert("ငွေသွင်းမှတ်တမ်း API မရှိသေးပါ (Status: " + error.response?.status + ")");
+      }
+
+      // =====================================
+      // ၂။ ဝယ်ယူမှုမှတ်တမ်းများ (Orders)
+      // =====================================
+      try {
+        // မှတ်ချက်: my-orders-test အစား /orders ဟု ပြင်ထားပါသည် (Backend တွင် ရေးထားရန် လိုအပ်သည်)
+        const orderRes = await axios.get('https://topup-bk-production.up.railway.app/api/topup/orders', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (orderRes.data && orderRes.data.success) {
+          setOrders(orderRes.data.orders);
+        }
+      } catch (error) {
+        console.error("Orders Error:", error);
+        // လောလောဆယ် Orders API မရေးရသေးလျှင် (404 ဖြစ်နေလျှင်) ဤအပိုင်းကို ကျော်သွားမည်ဖြစ်၍ App မပျက်တော့ပါ။
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
   }, []);
 
   const formatDate = (dateString) => {
@@ -30,9 +68,8 @@ export default function Wallet() {
   };
 
   return (
-    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6">
+    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24 px-4 pt-6">
       
-      {/* 👈 အသစ်ထည့်ထားသော Back ခလုတ်နှင့် Header */}
       <div className="flex items-center mb-6">
         <button onClick={() => navigate('/')} className="p-2 -ml-2 text-gray-400 hover:text-white transition cursor-pointer">
           <ChevronLeft size={24} />
@@ -66,10 +103,10 @@ export default function Wallet() {
           <p className="text-center text-teal-400 text-sm animate-pulse mt-10">ဒေတာများ ရယူနေပါသည်...</p>
         ) : (
           <>
-            {/* ဝယ်ယူမှု မှတ်တမ်း တက်ဘ် */}
+            {/* ===================== ဝယ်ယူမှု မှတ်တမ်း တက်ဘ် ===================== */}
             {activeTab === 'order' && (
               orders.length === 0 ? (
-                <p className="text-center text-gray-500 text-sm mt-10">ဝယ်ယူထားသော မှတ်တမ်း မရှိသေးပါ။</p>
+                <p className="text-center text-gray-500 text-sm mt-10 bg-[#1A2235] py-8 rounded-2xl border border-slate-700">ဝယ်ယူထားသော မှတ်တမ်း မရှိသေးပါ။</p>
               ) : (
                 orders.map((order) => (
                   <div key={order._id} className="bg-[#1A2235] p-4 rounded-xl border border-slate-700 flex items-center justify-between">
@@ -97,9 +134,36 @@ export default function Wallet() {
               )
             )}
 
-            {/* ငွေအဝင်/အထွက် တက်ဘ် */}
+            {/* ===================== ငွေအဝင်/အထွက် မှတ်တမ်း တက်ဘ် ===================== */}
             {activeTab === 'transaction' && (
-              <p className="text-center text-gray-500 text-sm mt-10">ငွေအဝင်/အထွက် လုပ်ဆောင်ချက်ကို Login/Signup ပြီးမှ ချိတ်ဆက်ပါမည်။</p>
+              transactions.length === 0 ? (
+                <p className="text-center text-gray-500 text-sm mt-10 bg-[#1A2235] py-8 rounded-2xl border border-slate-700">ငွေအဝင်/အထွက် မှတ်တမ်း မရှိသေးပါ။</p>
+              ) : (
+                transactions.map((txn) => (
+                  <div key={txn._id} className="bg-[#1A2235] p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-500/20 text-green-400 rounded-lg flex items-center justify-center">
+                        <ArrowDownCircle size={20} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Deposit <span className="text-gray-400 text-[10px] uppercase ml-1">({txn.payment_method})</span></p>
+                        <p className="text-[10px] text-gray-500 mt-0.5">{formatDate(txn.createdAt)}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-sm text-green-400">+{txn.amount} Ks</p>
+                      <div className={`flex items-center justify-end gap-1 mt-1 ${
+                        txn.status === 'approved' ? 'text-green-400' : 
+                        txn.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'
+                      }`}>
+                        {txn.status === 'approved' ? <CheckCircle size={12} /> : 
+                         txn.status === 'rejected' ? <XCircle size={12} /> : <Clock size={12} />}
+                        <span className="text-[10px] capitalize font-bold">{txn.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )
             )}
           </>
         )}

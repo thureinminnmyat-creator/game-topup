@@ -105,11 +105,12 @@ export default function Setting() {
   return (
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6 relative">
       <h2 className="text-2xl font-bold mb-6">ဆက်တင် (Settings)</h2>
+      <h2 className="text-2xl font-bold mb-6">ဆက်တင် (Settings)</h2>
 
       {/* ၁။ Profile & Wallet Section (တကယ့် Database က ဒေတာများ ပြပါမည်) */}
-      <div className="bg-[#1A2235] p-4 rounded-2xl border border-slate-700 shadow-lg mb-6">
+      <div className="bg-[#rgba] p-4 rounded-2xl border border-slate-700 shadow-lg mb-6">
         <div className="flex items-center gap-4 mb-5 pb-5 border-b border-slate-700/50">
-          <div className="w-14 h-14 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-full flex items-center justify-center text-[#121722] font-black text-xl shadow-lg uppercase">
+          <div className="w-14 h-14 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-full flex items-center justify-center text-[#rgba] font-black text-xl shadow-lg uppercase">
             {user?.name ? user.name.charAt(0) : 'U'} {/* နာမည်ရဲ့ ပထမဆုံးစာလုံးကို အလိုအလျောက် ယူပြမည် */}
           </div>
           <div>
@@ -118,14 +119,14 @@ export default function Setting() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between bg-[#121722] p-3 rounded-xl border border-slate-700">
+        <div className="flex items-center justify-between bg-[#rgba] p-3 rounded-xl border border-slate-700">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-teal-500/20 text-teal-400 rounded-lg">
               <Wallet size={20} />
             </div>
             <div>
               <p className="text-[10px] text-gray-400">လက်ကျန်ငွေ</p>
-              <p className="font-bold text-teal-400">{user?.balance || 0} Ks</p> {/* User ရဲ့ ပိုက်ဆံအစစ် ပြမည် */}
+              <p className="font-bold text-teal-400">{user?.wallet_balance || 0} Ks</p> {/* User ရဲ့ ပိုက်ဆံအစစ် ပြမည် */}
             </div>
           </div>
           <button 
@@ -138,7 +139,7 @@ export default function Setting() {
       </div>
 
       {/* ၂။ App Settings List */}
-      <div className="bg-[#1A2235] rounded-2xl border border-slate-700 shadow-lg mb-6 overflow-hidden">
+      <div className="bg-[#rgba] rounded-2xl border border-slate-700 shadow-lg mb-6 overflow-hidden">
         
         <div 
           onClick={() => setShowPasswordModal(true)}
@@ -159,7 +160,7 @@ export default function Setting() {
           <select 
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="bg-[#121722] border border-slate-700 text-xs rounded-lg px-2 py-1.5 focus:outline-none text-gray-300"
+            className="bg-[#rgba] border border-slate-700 text-xs rounded-lg px-2 py-1.5 focus:outline-none text-gray-300"
           >
             <option>မြန်မာ (Myanmar)</option>
             <option>English</option>
@@ -185,7 +186,7 @@ export default function Setting() {
 
       {/* ၃။ Connect to Admin */}
       <h3 className="text-sm font-bold text-gray-400 mb-3 px-2">အက်ဒမင်နှင့် ဆက်သွယ်ရန်</h3>
-      <div className="bg-[#1A2235] rounded-2xl border border-slate-700 shadow-lg mb-6 flex justify-around p-4">
+      <div className="bg-[#rgba] rounded-2xl border border-slate-700 shadow-lg mb-6 flex justify-around p-4">
         <button onClick={() => window.open('https://m.me/your_page', '_blank')} className="text-blue-400 text-sm font-bold hover:underline">
           Facebook
         </button>

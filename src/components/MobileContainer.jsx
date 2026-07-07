@@ -2,9 +2,9 @@ import React from 'react';
 
 export default function MobileContainer({ children }) {
   return (
-    // fixed inset-0 ဖြင့် Page ကြီးတစ်ခုလုံးကို အသေ Lock ချပါမည်
-    <div className="fixed inset-0 bg-gray-100 flex justify-center items-center sm:p-4">
-      <div className="w-full h-full sm:w-[400px] sm:h-[85vh] sm:max-h-[850px] bg-white sm:rounded-2xl sm:shadow-2xl flex flex-col overflow-hidden">
+    <div className="min-h-screen w-full flex justify-center bg-gray-900">
+      {/* ဒီမှာ Gradient Background လေးကို ထည့်ပေးလိုက်တာပါ */}
+      <div className="relative w-full max-w-[480px] min-h-screen bg-gradient-to-br from-[#121722] via-[#293b66] to-[#ec2634] bg-[length:200%_200%]animate-gradient-slow overflow-hidden shadow-2xl">
         {children}
       </div>
     </div>

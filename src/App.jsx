@@ -42,7 +42,7 @@ export default function App() {
             ========================================= */}
         <Route path="*" element={
           <MobileContainer>
-            <div className="flex-1 overflow-y-auto bg-[#121722]">
+            <div className="flex-1 overflow-y-auto bg-[#rgba]">
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />

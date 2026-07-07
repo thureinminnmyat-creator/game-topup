@@ -13,16 +13,23 @@ export default function AdminDeposits() {
 
   const fetchDeposits = async () => {
     try {
-      const adminToken = localStorage.getItem('adminToken');
-      // ⚠️ Backend တွင် GET /api/admin/deposits လမ်းကြောင်း ရှိရန်လိုအပ်ပါသည်
-      const res = await axios.get('https://topup-bk-production.up.railway.app/api/admin/deposits', {
+      const adminToken = localStorage.getItem('adminToken'); // Admin Token ကို ယူမည်
+      
+      // ⚠️ /api/wallet/admin/deposits သို့ လှမ်းခေါ်မည်
+      const res = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/admin/deposits', {
         headers: { Authorization: `Bearer ${adminToken}` }
       });
+      
+      console.log("Admin Deposits API Response:", res.data); // Console တွင် Data ကို ကြည့်ရန်
+
       if (res.data && res.data.success) {
-        setDeposits(res.data.deposits);
+        setDeposits(res.data.deposits || []);
       }
     } catch (error) {
-      console.error("Deposits Fetch Error", error);
+      // 🚨 ပြဿနာရဲ့ အရင်းအမြစ်ကို ဖော်ပြပေးမည့် Alert
+      const errorMsg = error.response?.data?.message || error.message;
+      alert("Admin Panel Error: " + errorMsg);
+      console.error("Fetch Error Detail:", error.response || error);
     } finally {
       setLoading(false);
     }
@@ -36,14 +43,21 @@ export default function AdminDeposits() {
     e.preventDefault();
     try {
       const adminToken = localStorage.getItem('adminToken');
-      await axios.put(`https://topup-bk-production.up.railway.app/api/admin/deposits/${actionModal.id}/status`, 
-        { status: actionModal.type, adminNote: actionModal.note },
+      
+      // ⚠️ အစ်ကို့ရဲ့ Backend Code (walletRoutes) နဲ့ ကိုက်ညီအောင် ပြင်ထားပါသည်
+      // လမ်းကြောင်းကို မိမိ Backend တွင် mount လုပ်ထားသည့်အတိုင်း ပြင်နိုင်သည် (ဥပမာ - /api/wallet/admin/approve)
+      await axios.post(`https://topup-bk-production.up.railway.app/api/wallet/admin/approve`, 
+        { 
+          transaction_id: actionModal.id, 
+          status: actionModal.type, 
+          adminNote: actionModal.note 
+        },
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       
       alert(actionModal.type === 'approved' ? 'ငွေသွင်းလွှာကို လက်ခံလိုက်ပါပြီ။' : 'ငွေသွင်းလွှာကို ငြင်းပယ်လိုက်ပါပြီ။');
       setActionModal({ show: false, type: '', id: '', note: '' });
-      fetchDeposits(); // Data ပြန်ခေါ်မည်
+      fetchDeposits(); 
     } catch (error) {
       alert(error.response?.data?.message || 'အမှားအယွင်းဖြစ်ပွားခဲ့ပါသည်။');
     }
@@ -89,13 +103,15 @@ export default function AdminDeposits() {
               
               <div className="flex justify-between items-start border-b border-slate-700/50 pb-3">
                 <div>
-                  <h3 className="font-bold text-white text-sm">{item.userId?.name || 'Unknown User'}</h3>
-                  <p className="text-[10px] text-gray-400">{item.userId?.email || 'No Email'}</p>
+                  {/* ⚠️ Backend Model နဲ့ ကိုက်ညီအောင် user_id သို့ ပြောင်းထားသည် */}
+                  <h3 className="font-bold text-white text-sm">{item.user_id?.name || 'Unknown User'}</h3>
+                  <p className="text-[10px] text-gray-400">{item.user_id?.email || 'No Email'}</p>
                 </div>
                 <div className={`px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider ${
-                  item.method === 'kpay' ? 'bg-[#007BFF]/20 text-[#007BFF]' : 'bg-[#FFD100]/20 text-[#FFD100]'
+                  item.payment_method === 'kpay' ? 'bg-[#007BFF]/20 text-[#007BFF]' : 'bg-[#FFD100]/20 text-[#FFD100]'
                 }`}>
-                  {item.method}
+                  {/* ⚠️ payment_method သို့ ပြောင်းထားသည် */}
+                  {item.payment_method}
                 </div>
               </div>
 
@@ -104,23 +120,19 @@ export default function AdminDeposits() {
                   <p className="text-[10px] text-gray-400 mb-0.5">ငွေပမာဏ</p>
                   <p className="font-bold text-teal-400 text-base">{item.amount} Ks</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-gray-400 mb-0.5">လုပ်ငန်းစဉ်အမှတ်</p>
-                  <p className="font-semibold text-white text-sm tracking-widest">{item.transactionId || 'N/A'}</p>
-                </div>
               </div>
 
               {/* Screenshot Button */}
-              {item.screenshotUrl && (
+              {item.screenshot && ( // ⚠️ screenshot သို့ ပြောင်းထားသည်
                 <button 
-                  onClick={() => setImageModal({ show: true, url: item.screenshotUrl })}
+                  onClick={() => setImageModal({ show: true, url: item.screenshot })}
                   className="w-full flex items-center justify-center gap-2 py-2 bg-slate-800 text-gray-300 rounded-lg text-xs font-semibold hover:bg-slate-700 transition"
                 >
                   <ImageIcon size={14} /> ပြေစာ ပုံကြည့်မည်
                 </button>
               )}
 
-              {/* Actions (Only for Pending) */}
+              {/* Actions */}
               {item.status === 'pending' && (
                 <div className="flex gap-2 pt-2">
                   <button 
@@ -138,13 +150,6 @@ export default function AdminDeposits() {
                 </div>
               )}
 
-              {/* Status Note for Processed Items */}
-              {item.status !== 'pending' && item.adminNote && (
-                <div className={`p-2 rounded-lg text-xs mt-1 ${item.status === 'approved' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                  <strong>မှတ်ချက်:</strong> {item.adminNote}
-                </div>
-              )}
-
             </div>
           ))
         ) : (
@@ -154,35 +159,23 @@ export default function AdminDeposits() {
         )}
       </div>
 
-      {/* --- Action Modal (Approve / Reject) --- */}
+      {/* --- Action Modal --- */}
       {actionModal.show && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
           <div className="bg-[#1A2235] w-full max-w-sm rounded-2xl border border-slate-700 p-5 relative shadow-2xl animate-fade-in-up">
             <button onClick={() => setActionModal({ show: false, type: '', id: '', note: '' })} className="absolute top-4 right-4 text-gray-400 hover:text-white">
               <X size={20} />
             </button>
-            
-            <h3 className={`text-lg font-bold mb-1 flex items-center gap-2 ${actionModal.type === 'approved' ? 'text-green-400' : 'text-red-400'}`}>
+            <h3 className={`text-lg font-bold mb-5 flex items-center gap-2 ${actionModal.type === 'approved' ? 'text-green-400' : 'text-red-400'}`}>
               {actionModal.type === 'approved' ? <Check size={20} /> : <AlertCircle size={20} />}
               {actionModal.type === 'approved' ? 'လက်ခံမည်' : 'ငြင်းပယ်မည်'}
             </h3>
-            <p className="text-xs text-gray-400 mb-5">
-              အောက်ပါ အကြောင်းပြချက် သို့မဟုတ် မှတ်ချက်ကို User ထံ ပြသပါမည်။
-            </p>
             
             <form onSubmit={handleActionSubmit}>
-              <textarea 
-                value={actionModal.note}
-                onChange={(e) => setActionModal({...actionModal, note: e.target.value})}
-                placeholder="မှတ်ချက် ရိုက်ထည့်ပါ..."
-                rows="3"
-                className="w-full bg-[#121722] border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-teal-500 mb-5 shadow-inner resize-none"
-                required={actionModal.type === 'rejected'}
-              />
               <button 
                 type="submit" 
                 className={`w-full font-bold py-3.5 rounded-xl transition shadow-lg ${
-                  actionModal.type === 'approved' ? 'bg-green-500 hover:bg-green-600 text-[#121722] shadow-green-500/20' : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20'
+                  actionModal.type === 'approved' ? 'bg-green-500 hover:bg-green-600 text-[#121722]' : 'bg-red-500 hover:bg-red-600 text-white'
                 }`}
               >
                 အတည်ပြုမည်

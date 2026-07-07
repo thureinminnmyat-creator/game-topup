@@ -139,7 +139,7 @@ export default function Topup() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24">
       {/* Header */}
       <div className="flex items-center p-4 bg-[#1A2235] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">

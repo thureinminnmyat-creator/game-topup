@@ -44,7 +44,7 @@ export default function Shop() {
           placeholder="ဂိမ်းအမည် ရှာဖွေရန်..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-[#1A2235] border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 transition"
+          className="w-full bg-[#rgba] border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 transition"
         />
       </div>
 
@@ -60,7 +60,7 @@ export default function Shop() {
               key={game.id}
               // ဂိမ်းတစ်ခုကို နှိပ်ပါက ထိုဂိမ်း၏ ဝယ်ယူမည့် Page သို့ game.code ယူဆောင်သွားပါမည် (ဥပမာ - /topup/mlbb)
               onClick={() => navigate(`/topup/${game.code}`)} 
-              className="bg-[#1A2235] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:ring-2 ring-teal-500 transition flex flex-col"
+              className="bg-[#rgba] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:ring-2 ring-teal-500 transition flex flex-col"
             >
               <img
                 src={game.image_url}

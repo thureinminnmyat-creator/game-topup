@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, CheckCircle, UploadCloud, X, Copy, Check } from 'lucide-react'; // 👈 Copy နဲ့ Check Icon ထပ်ထည့်ထားသည်
+import { ChevronLeft, CheckCircle, UploadCloud, X, Copy, Check } from 'lucide-react'; 
 import axios from 'axios';
 
 export default function Deposit() {
@@ -13,7 +13,7 @@ export default function Deposit() {
   const [previewUrl, setPreviewUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [copied, setCopied] = useState(false); // Copy ကူး/မကူး သိရန် State
+  const [copied, setCopied] = useState(false); 
 
   // Admin ဆီမှ ယူမည့် ဖုန်းနံပါတ်များ State
   const [adminAccounts, setAdminAccounts] = useState({
@@ -49,11 +49,10 @@ export default function Deposit() {
     fetchSettings();
   }, []);
 
-  // ဖုန်းနံပါတ် Copy ကူးမည့် Function
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // ၂ စက္ကန့်ကြာရင် အမှန်ခြစ်လေး ပျောက်သွားမည်
+    setTimeout(() => setCopied(false), 2000); 
   };
 
   const handleImageChange = (e) => {
@@ -71,7 +70,7 @@ export default function Deposit() {
 
   const handleDeposit = async (e) => {
     e.preventDefault();
-    // လုပ်ငန်းစဉ်အမှတ် စစ်ဆေးခြင်းကို ဖြုတ်ထားပါသည်
+    
     if (!amount || !screenshot) {
       alert('ကျေးဇူးပြု၍ ငွေပမာဏ နှင့် ငွေလွှဲ Screenshot ကို ထည့်ပါ။');
       return;
@@ -86,41 +85,46 @@ export default function Deposit() {
       formData.append('amount', amount);
       formData.append('screenshot', screenshot); 
 
-      // ⚠️ ဤနေရာမှ Backend (Deposit API) သို့ ပို့ပါမည်
-      // await axios.post('https://topup-bk-production.up.railway.app/api/transactions/deposit', formData, { ... });
+      // ⚠️ Backend သို့ တကယ်လှမ်းပို့မည့် API
+      const res = await axios.post('https://topup-bk-production.up.railway.app/api/wallet/deposit', formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data' // 👈 ပုံပါဝင်သောကြောင့် မဖြစ်မနေ ထည့်ရပါမည်
+        }
+      });
 
-      setTimeout(() => {
+      if (res.data.success) {
         setSuccess(true);
-        setLoading(false);
-      }, 1500);
+      }
 
     } catch (error) {
       console.error(error);
-      alert('ငွေသွင်းရန် အခက်အခဲရှိနေပါသည်။');
+      alert(error.response?.data?.message || 'ငွေသွင်းရန် အခက်အခဲရှိနေပါသည်။');
+    } finally {
       setLoading(false);
     }
   };
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#blue] flex flex-col items-center justify-center p-4 text-white font-sans animate-fade-in-up">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-white font-sans animate-fade-in-up">
         <CheckCircle size={64} className="text-teal-400 mb-4" />
         <h2 className="text-2xl font-bold mb-2">ငွေသွင်းလွှာ ပို့ပြီးပါပြီ</h2>
         <p className="text-gray-400 text-center text-sm mb-8">
           Admin မှ သင့်ငွေလွှဲပြေစာအား စစ်ဆေးပြီးပါက အကောင့်သို့ ငွေဝင်လာပါမည်။
         </p>
         <button 
-          onClick={() => navigate('/setting')}
-          className="bg-[#rgba] border border-slate-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition"
+          onClick={() => navigate('/wallet')} // 👈 Setting အစား History (Wallet) သို့ သွားစေရန် ပြင်ထားသည်
+          className="bg-[#1A2235] border border-slate-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition text-white"
         >
-          ဆက်တင်သို့ ပြန်သွားမည်
+          ငွေသွင်းမှတ်တမ်း ကြည့်မည်
         </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6">
+    <div className="min-h-screen text-white font-sans pb-24 px-4 pt-6">
       
       <div className="flex items-center mb-6">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">
@@ -156,7 +160,6 @@ export default function Deposit() {
           </div>
         </div>
 
-        {/* 👈 Copy ခလုတ်ပါဝင်သော အကောင့်နံပါတ် နေရာ */}
         <div className="bg-[#1A2235] p-4 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden flex justify-between items-center">
           <div className={`absolute top-0 left-0 w-1 h-full ${method === 'kpay' ? 'bg-[#007BFF]' : 'bg-[#FFD100]'}`}></div>
           <div>
@@ -183,7 +186,7 @@ export default function Deposit() {
                 placeholder="ပမာဏ ရိုက်ထည့်ပါ..."
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full bg-[#1A2235] border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-teal-500 transition"
+                className="w-full bg-[#1A2235] border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-teal-500 transition text-white"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-bold">Ks</span>
             </div>

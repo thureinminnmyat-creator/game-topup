@@ -15,7 +15,7 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[380px] bg-[#1A2235]/95 backdrop-blur-md border border-slate-700/50 rounded-full flex justify-between items-center p-1.5 shadow-2xl z-50">
+    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[380px] bg-[#rgba]/95 backdrop-blur-md border border-slate-700/50 rounded-full flex justify-between items-center p-1.5 shadow-2xl z-50">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.id;

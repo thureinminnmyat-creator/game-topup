@@ -11,9 +11,10 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     try {
       const adminToken = localStorage.getItem('adminToken');
-      const res = await axios.get('https://topup-bk-production.up.railway.app/api/admin/all-orders', {
-        headers: { Authorization: `Bearer ${adminToken}` }
-      });
+      // AdminOrders.jsx ထဲက fetch နေရာတွင် ဤသို့ ပြင်ပါ-
+const res = await axios.get('https://topup-bk-production.up.railway.app/api/admin/all-orders', {
+  headers: { Authorization: `Bearer ${adminToken}` }
+});
       if (res.data && res.data.success) {
         setOrders(res.data.orders);
       }
