@@ -49,7 +49,7 @@ const HomePage = () => {
             F
           </div>
           <div>
-            <h1 className="text-lg font-bold leading-tight text-white">Wam Trading</h1>
+            <h1 className="text-lg font-bold leading-tight text-white">Faygo Digital Store</h1>
             <p className="text-[10px] text-gray-400">Best place to buy items</p>
           </div>
         </div>
