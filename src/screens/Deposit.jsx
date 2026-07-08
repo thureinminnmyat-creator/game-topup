@@ -23,29 +23,31 @@ export default function Deposit() {
 
   const quickAmounts = [1000, 3000, 5000, 10000];
 
+  // Deposit.jsx ထဲတွင်
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('https://topup-bk-production.up.railway.app/api/settings', {
+        // ⚠️ /api/settings အစား /api/wallet/settings ဟု ပြောင်းလိုက်ပါ
+        const res = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/settings', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-                if (res.data && res.data.success) {
+        if (res.data && res.data.success) {
           setAdminAccounts({
             kpay: { 
-              name: res.data.setting.kpayAccountName || 'Wam Trading', // 👈 Backend က နာမည်အစစ်ကို ယူမည်
+              name: res.data.setting.kpayAccountName || 'Wam Trading', 
               phone: res.data.setting.kpayNumber || 'No Number' 
             },
             wave: { 
-              name: res.data.setting.waveAccountName || 'Wam Trading', // 👈 Backend က နာမည်အစစ်ကို ယူမည်
+              name: res.data.setting.waveAccountName || 'Wam Trading', 
               phone: res.data.setting.waveNumber || 'No Number' 
             }
           });
         }
-
       } catch (error) {
         console.error("Setting Fetch Error", error);
+        // Error တက်လျှင်သာ ဒီအောက်က အသေရိုက်ထားတဲ့ နံပါတ်တွေ ပေါ်ပါမည်
         setAdminAccounts({
           kpay: { name: 'Wam Trading (Admin)', phone: '09123456789' },
           wave: { name: 'Wam Trading (Admin)', phone: '09987654321' }
@@ -55,6 +57,7 @@ export default function Deposit() {
 
     fetchSettings();
   }, []);
+
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
