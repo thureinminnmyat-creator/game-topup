@@ -169,7 +169,7 @@ export default function Topup() {
 
   return (
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24">
-      <div className="flex items-center justify-between p-4 bg-[#1A2235] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
+      <div className="flex items-center justify-between p-4 bg-[#rgba] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
         <div className="flex items-center">
           <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">
             <ChevronLeft size={24} />
@@ -184,7 +184,7 @@ export default function Topup() {
       
 
         {/* အဆင့် ၁: Player အချက်အလက်များ ထည့်သွင်းခြင်း */}
-        <div className="bg-[#1A2235] p-5 rounded-2xl border border-slate-700 shadow-lg">
+        <div className="bg-[#rgba] p-5 rounded-2xl border border-slate-700 shadow-lg">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-7 h-7 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-full flex items-center justify-center text-xs font-bold">1</div>
             <h3 className="font-bold text-sm text-gray-100">အကောင့် အချက်အလက် ထည့်ပါ</h3>
@@ -197,7 +197,7 @@ export default function Topup() {
                 placeholder="Player ID" 
                 value={playerId}
                 onChange={(e) => setPlayerId(e.target.value)}
-                className="w-full bg-[#121722] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition shadow-inner"
+                className="w-full bg-[#0_0_15px_rgba] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition shadow-inner"
               />
             </div>
             
@@ -208,7 +208,7 @@ export default function Topup() {
                   placeholder="Server ID" 
                   value={serverId}
                   onChange={(e) => setServerId(e.target.value)}
-                  className="w-full bg-[#121722] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition shadow-inner"
+                  className="w-full bg-[#0_0_15px_rgba] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition shadow-inner"
                 />
               </div>
             )}
@@ -241,7 +241,7 @@ export default function Topup() {
         </div>
 
         {/* အဆင့် ၂: Package ရွေးချယ်ခြင်း */}
-        <div className="bg-[#1A2235] p-5 rounded-2xl border border-slate-700 shadow-lg">
+        <div className="bg-[#rgba] p-5 rounded-2xl border border-slate-700 shadow-lg">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-7 h-7 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-full flex items-center justify-center text-xs font-bold">2</div>
             <h3 className="font-bold text-sm text-gray-100">ပက်ကေ့ချ် ရွေးချယ်ပါ</h3>

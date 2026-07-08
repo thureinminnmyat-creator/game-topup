@@ -5,26 +5,23 @@ import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const [games, setGames] = useState([]);
-  const [banners, setBanners] = useState([]); // 💡 Banner သိမ်းရန် State အသစ်
+  const [banners, setBanners] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 💡 Fetching Data Function
     const fetchData = async () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       if (token) setIsLoggedIn(true);
 
       try {
-        // ၁။ ဂိမ်းများ ဆွဲယူခြင်း (Local Games ကိုသာ ပြမည်)
         const gamesRes = await axios.get('https://topup-bk-production.up.railway.app/api/topup/local-games');
         if (gamesRes.data && gamesRes.data.success) {
           setGames(gamesRes.data.games);
         }
 
-        // ၂။ 💡 Settings API မှ Banners များ ဆွဲယူခြင်း
         const settingsRes = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/settings');
         if (settingsRes.data && settingsRes.data.success) {
           setBanners(settingsRes.data.setting.banners || []);
@@ -40,7 +37,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24"> {/* 💡 Background Color ပြင်ထားသည် */}
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24"> 
       
       {/* 1. Header Section */}
       <header className="flex justify-between items-center p-4">
@@ -55,17 +52,20 @@ const HomePage = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Bell Notification */}
-          <button className="p-2 bg-slate-800 rounded-xl text-teal-400 relative border border-slate-700/50">
+          {/* 💡 Bell Notification Button */}
+          <button 
+            onClick={() => navigate('/notifications')} 
+            className="p-2 bg-slate-800 rounded-xl text-teal-400 relative border border-slate-700/50 hover:bg-slate-700 transition active:scale-95"
+          >
             <Bell size={18} />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
           </button>
 
           {/* Dynamic Login Button */}
           {isLoggedIn ? (
             <button 
               onClick={() => navigate('/setting')} 
-              className="p-2 bg-teal-500/10 border border-teal-500/30 rounded-xl text-teal-400"
+              className="p-2 bg-teal-500/10 border border-teal-500/30 rounded-xl text-teal-400 hover:bg-teal-500/20 transition active:scale-95"
             >
               <User size={18} />
             </button>
@@ -93,17 +93,26 @@ const HomePage = () => {
 
         {/* 3. Action Buttons */}
         <div className="flex gap-3 mb-6">
-          <button className="flex items-center justify-center gap-2 flex-1 py-3.5 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-800 transition">
+          {/* 💡 Daily Bonus Button */}
+          <button 
+            onClick={() => navigate('/daily-bonus')} 
+            className="flex items-center justify-center gap-2 flex-1 py-3.5 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-800 transition active:scale-95 shadow-md"
+          >
             <Gift size={20} className="text-orange-400" />
             <span className="font-medium text-teal-400 text-sm">Daily Bonus</span>
           </button>
-          <button className="flex items-center justify-center gap-2 flex-1 py-3.5 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-800 transition">
+          
+          {/* 💡 Lucky Spin Button */}
+          <button 
+            onClick={() => navigate('/lucky-spin')} 
+            className="flex items-center justify-center gap-2 flex-1 py-3.5 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-800 transition active:scale-95 shadow-md"
+          >
             <HelpCircle size={20} className="text-purple-400" />
             <span className="font-medium text-yellow-500 text-sm">Lucky Spin</span>
           </button>
         </div>
 
-        {/* 4. 💡 Dynamic Hero Banner Slider */}
+        {/* 4. Dynamic Hero Banner Slider */}
         {banners.length > 0 ? (
           <div className="flex overflow-x-auto gap-3 snap-x pb-2 mb-6 scrollbar-hide">
             {banners.map((url, index) => (
@@ -116,7 +125,6 @@ const HomePage = () => {
             ))}
           </div>
         ) : (
-          /* Banner မရှိလျှင် ပြမည့် Default ပုံ */
           <div className="w-full h-40 rounded-xl overflow-hidden mb-6 relative border border-slate-700">
             <img 
               src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop" 
@@ -146,7 +154,7 @@ const HomePage = () => {
               <div 
                 key={game._id} 
                 onClick={() => navigate(`/topup/${game.gameCode}`)} 
-                className="w-28 sm:w-32 bg-[#1A2235] border border-slate-700 rounded-xl overflow-hidden shadow-lg flex-shrink-0 cursor-pointer hover:ring-2 ring-teal-500 transition"
+                className="w-28 sm:w-32 bg-[#1A2235] border border-slate-700 rounded-xl overflow-hidden shadow-lg flex-shrink-0 cursor-pointer hover:ring-2 ring-teal-500 transition active:scale-95"
               >
                 <img 
                   src={game.imageUrl} 
@@ -176,7 +184,7 @@ const HomePage = () => {
         <div className="space-y-3">
             <div 
               onClick={() => navigate('/social')} 
-              className="flex gap-3 bg-[#1A2235] p-3 rounded-xl items-center cursor-pointer hover:bg-slate-800 transition border border-slate-700"
+              className="flex gap-3 bg-[#1A2235] p-3 rounded-xl items-center cursor-pointer hover:bg-slate-800 transition border border-slate-700 active:scale-95"
             >
                 <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=200&auto=format&fit=crop" alt="Promo" className="w-16 h-16 rounded-lg object-cover" />
                 <div>

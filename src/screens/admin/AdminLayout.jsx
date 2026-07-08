@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Wallet, ListOrdered, Settings, LogOut, Menu, Lock, Gamepad2 } from 'lucide-react';
+// 💡 အောက်ပါ import တွင် Send နှင့် MessageSquare (Social အတွက်) ကို ထပ်ထည့်ထားပါသည်
+import { LayoutDashboard, Users, Wallet, ListOrdered, Settings, LogOut, Menu, Lock, Gamepad2, Send, Share2 } from 'lucide-react';
 import axios from 'axios';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Admin Security States
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [secretPassword, setSecretPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // 💡 ဤနေရာတွင် Send Noti နှင့် Social Menu များကို ထပ်ဖြည့်ထားပါသည်
   const menuItems = [
     { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/users', label: 'Users', icon: Users },
     { path: '/admin/deposits', label: 'Deposits', icon: Wallet },
     { path: '/admin/orders', label: 'Orders', icon: ListOrdered },
     { path: '/admin/games', label: 'Games', icon: Gamepad2 },
+    { path: '/admin/send-noti', label: 'Send Noti', icon: Send }, // 👈 Noti ပို့ရန်
+    { path: '/admin/social', label: 'Social Post', icon: Share2 }, // 👈 (ရေးဖြစ်ခဲ့လျှင် Social ပို့ရန်)
     { path: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
   useEffect(() => {
-    // Admin Token ရှိ/မရှိ စစ်ဆေးခြင်း
     const adminToken = localStorage.getItem('adminToken');
     if (adminToken) {
       setIsUnlocked(true);
@@ -39,14 +41,12 @@ export default function AdminLayout() {
 
     try {
       const token = localStorage.getItem('token');
-      // ⚠️ Backend သို့ Master Password စစ်ဆေးရန် ပို့ခြင်း
       const res = await axios.post('https://topup-bk-production.up.railway.app/api/admin/verify-secret', 
         { secretPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (res.data && res.data.success) {
-        // မှန်ကန်ပါက Admin Token အသစ်ကို သိမ်းမည်
         localStorage.setItem('adminToken', res.data.adminToken);
         setIsUnlocked(true);
       }
@@ -63,7 +63,6 @@ export default function AdminLayout() {
     navigate('/login');
   };
 
-  // 🔒 Master Password မမှန်သေးပါက လုံခြုံရေး Modal ပြမည်
   if (!isUnlocked) {
     return (
       <div className="min-h-screen bg-[#121722] flex items-center justify-center p-4">
@@ -100,7 +99,6 @@ export default function AdminLayout() {
     );
   }
 
-  // 🔓 Unlocked ဖြစ်သွားပါက ပုံမှန် Admin Layout ကို ပြမည်
   return (
     <div className="min-h-screen bg-[#121722] text-white flex flex-col md:flex-row font-sans animate-fade-in">
       <div className="md:hidden bg-[#1A2235] border-b border-slate-700 p-4 flex justify-between items-center sticky top-0 z-50">
@@ -143,13 +141,14 @@ export default function AdminLayout() {
         </div>
       </div>
 
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#1A2235] border-t border-slate-700 flex justify-around p-2 z-50">
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#1A2235] border-t border-slate-700 flex justify-around p-2 z-50 overflow-x-auto scrollbar-hide">
         {menuItems.map(item => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           return (
-            <button key={item.path} onClick={() => navigate(item.path)} className={`p-2 ${isActive ? 'text-teal-400' : 'text-gray-500'}`}>
-              <Icon size={24} />
+            <button key={item.path} onClick={() => navigate(item.path)} className={`p-3 min-w-[50px] flex justify-center ${isActive ? 'text-teal-400' : 'text-gray-500'}`}>
+              <Icon size={22} />
             </button>
           );
         })}

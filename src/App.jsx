@@ -4,12 +4,15 @@ import MobileContainer from './components/MobileContainer.jsx';
 import Navbar from './components/Navbar.jsx';
 
 import AdminLayout from './screens/admin/AdminLayout.jsx';
-import AdminDashboard from './screens/admin/AdminDashboard.jsx'; // 👈 ဒီနေရာလေးမှာ ' နဲ့ ; ထည့်ပေးလိုက်ပါ
+import AdminDashboard from './screens/admin/AdminDashboard.jsx'; 
 import AdminUsers from './screens/admin/AdminUsers.jsx';
 import AdminDeposits from './screens/admin/AdminDeposits.jsx';
 import AdminSettings from './screens/admin/AdminSettings.jsx';
 import AdminOrders from './screens/admin/AdminOrders.jsx';
 import AdminGames from './screens/admin/AdminGames.jsx';
+// 💡 မှားနေတဲ့နေရာကို ပြင်ထားပါသည် (နာမည်ပြောင်းပြီး အပိတ်လေးတွေ ထည့်ထားသည်)
+import AdminSendNoti from './screens/admin/AdminSendNoti.jsx'; 
+import AdminSocial from './screens/admin/AdminSocial.jsx';
 
 import Login from './screens/Login.jsx';
 import Signup from './screens/Signup.jsx';
@@ -20,6 +23,10 @@ import Wallet from './screens/Wallet.jsx';
 import Social from './screens/Social.jsx';
 import Setting from './screens/Setting.jsx';
 import Topup from './screens/Topup.jsx';
+import Notifications from './screens/Notifications'; 
+import DailyBonus from './screens/DailyBonus';
+import LuckySpin from './screens/LuckySpin';
+
 
 export default function App() {
   return (
@@ -35,6 +42,9 @@ export default function App() {
           <Route path="settings" element={<AdminSettings />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="games" element={<AdminGames />} />
+          <Route path="social" element={<AdminSocial />} />
+          {/* 💡 Menu နှင့် ကိုက်ညီရန် path ကို send-noti ဟု ပြင်ထားပါသည် */}
+          <Route path="send-noti" element={<AdminSendNoti />} />
         </Route>
         
         {/* =========================================
@@ -52,6 +62,9 @@ export default function App() {
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/deposit" element={<Deposit />} />
                 <Route path="/social" element={<Social />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/daily-bonus" element={<DailyBonus />} />
+                <Route path="/lucky-spin" element={<LuckySpin />} />
                 <Route path="/setting" element={<Setting />} />
               </Routes>
             </div>
