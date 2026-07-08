@@ -9,8 +9,25 @@ export default function Social() {
   const [expandedPostId, setExpandedPostId] = useState(null);
   const [showCommentsFor, setShowCommentsFor] = useState(null);
   const [newComment, setNewComment] = useState('');
+  
+  // 💡 Token ထဲမှ ထုတ်ယူမည့် ကိုယ့်ရဲ့ User ID
+  const [currentUserId, setCurrentUserId] = useState(null);
 
-  // 💡 Post များကို Backend မှ ဆွဲယူခြင်း
+  // 💡 Token ထဲကနေ User ID ကို ဆွဲထုတ်မည့် Function
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        // Token ကို ဖြည်ပြီး အထဲက ID ကို ယူမည်
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUserId(payload.id || payload.userId);
+      } catch (error) {
+        console.error("Token ခွဲခြမ်းရာတွင် အမှားရှိပါသည်");
+      }
+    }
+    fetchPosts();
+  }, []);
+
   const fetchPosts = async () => {
     try {
       const response = await axios.get('https://topup-bk-production.up.railway.app/api/topup/social');
@@ -24,26 +41,39 @@ export default function Social() {
     }
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  // ၁။ Like ပေးရန်/ဖြုတ်ရန် API ချိတ်ခြင်း
   const handleLike = async (postId) => {
     const token = localStorage.getItem('token');
     if (!token) return alert("Like ပေးရန် Login ဝင်ပါ။");
 
     try {
+      // 💡 UI မှာ အရင်ဆုံး နီသွားအောင် ချက်ချင်းပြောင်းပေးမည် (ပိုမိုက်သော UX)
+      setAnnouncements(prev => prev.map(post => {
+        if (post._id === postId) {
+          const isCurrentlyLiked = post.likes.some(id => id.toString() === currentUserId?.toString());
+          let newLikes = [...post.likes];
+          
+          if (isCurrentlyLiked) {
+            newLikes = newLikes.filter(id => id.toString() !== currentUserId?.toString()); // Unlike
+          } else {
+            if (currentUserId) newLikes.push(currentUserId); // Like
+          }
+          
+          return { ...post, likes: newLikes };
+        }
+        return post;
+      }));
+
+      // Backend သို့ လှမ်းပို့မည်
       await axios.post(`https://topup-bk-production.up.railway.app/api/topup/social/${postId}/like`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchPosts(); // Like လုပ်ပြီးရင် Data ပြန်ဆွဲမည်
+      
     } catch (error) {
-      alert("Like လုပ်ရာတွင် အမှားအယွင်းရှိပါသည်။");
+      console.log("Like Error");
+      fetchPosts(); // Error တက်ရင် မူလ Data အတိုင်း ပြန်ထားမည်
     }
   };
 
-  // ၂။ Comment အသစ် ထည့်ရန် API ချိတ်ခြင်း
   const handleAddComment = async (postId) => {
     if (!newComment.trim()) return;
     const token = localStorage.getItem('token');
@@ -55,7 +85,7 @@ export default function Social() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setNewComment('');
-      fetchPosts(); // Comment တင်ပြီးရင် Data ပြန်ဆွဲမည်
+      fetchPosts(); 
     } catch (error) {
       alert("Comment တင်ရာတွင် အဆင်မပြေဖြစ်ပါသည်။");
     }
@@ -82,68 +112,75 @@ export default function Social() {
         ) : announcements.length === 0 ? (
           <p className="text-center text-gray-500 text-sm mt-10">လောလောဆယ် ကြေညာချက် မရှိသေးပါ။</p>
         ) : (
-          announcements.map((item) => (
-            <div key={item._id} className="bg-[#1A2235] rounded-2xl overflow-hidden border border-slate-700 shadow-lg">
-              {item.imageUrl && (
-                <div className="relative w-full h-48">
-                  <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-                </div>
-              )}
-              <div className="p-4">
-                <h3 className="font-bold text-lg text-white mb-2">{item.title}</h3>
-                <p className={`text-sm text-gray-300 leading-relaxed ${expandedPostId === item._id ? '' : 'line-clamp-2'}`}>
-                  {item.description}
-                </p>
-                
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
-                  <div className="flex items-center gap-5">
-                    <button onClick={() => handleLike(item._id)} className="flex items-center gap-1.5 transition active:scale-90">
-  <Heart 
-    size={20} 
-    className={
-      Array.isArray(item.likes) && 
-      item.likes.map(id => id.toString()).includes(localStorage.getItem('userId'))
-        ? 'fill-red-500 text-red-500' 
-        : 'text-gray-400'
-    } 
-  />
-  <span className="text-sm font-semibold text-gray-400">{item.likes?.length || 0}</span>
-</button>
+          announcements.map((item) => {
+            // 💡 လက်ရှိ User က Like ပေးထားသလား စစ်ဆေးခြင်း
+            const isLikedByMe = Array.isArray(item.likes) && currentUserId && 
+              item.likes.some(id => id.toString() === currentUserId.toString());
 
-                    <button onClick={() => toggleComments(item._id)} className="flex items-center gap-1.5 text-gray-400">
-                      <MessageCircle size={20} />
-                      <span className="text-sm font-semibold">{item.comments?.length || 0}</span>
-                    </button>
-                  </div>
-                  <button onClick={() => toggleDetails(item._id)} className="text-xs text-teal-400 font-bold flex items-center gap-1">
-                    {expandedPostId === item._id ? 'အကျဉ်းချုပ်' : 'အသေးစိတ်'}
-                  </button>
-                </div>
-
-                {showCommentsFor === item._id && (
-                  <div className="mt-4 pt-4 border-t border-slate-700/50">
-                    <div className="space-y-2 mb-3 max-h-40 overflow-y-auto">
-                      {item.comments?.map((cmt, idx) => (
-                        <div key={idx} className="bg-[#121722] p-2 rounded-lg border border-slate-700">
-                          <p className="text-[10px] font-bold text-teal-400">{cmt.user_id?.name || 'User'}</p>
-                          <p className="text-xs text-gray-300">{cmt.text}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <input 
-                        className="flex-1 bg-[#121722] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                        placeholder="မှတ်ချက်ရေးရန်..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                      />
-                      <button onClick={() => handleAddComment(item._id)} className="bg-teal-500 p-2 rounded-xl"><Send size={16} /></button>
-                    </div>
+            return (
+              <div key={item._id} className="bg-[#1A2235] rounded-2xl overflow-hidden border border-slate-700 shadow-lg">
+                {item.imageUrl && (
+                  <div className="relative w-full h-48">
+                    <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
                   </div>
                 )}
+                <div className="p-4">
+                  <h3 className="font-bold text-lg text-white mb-2">{item.title}</h3>
+                  <p className={`text-sm text-gray-300 leading-relaxed ${expandedPostId === item._id ? '' : 'line-clamp-2'}`}>
+                    {item.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
+                    <div className="flex items-center gap-5">
+                      
+                      {/* 💡 Like Button - isLikedByMe ကို သုံးထားသည် */}
+                      <button onClick={() => handleLike(item._id)} className="flex items-center gap-1.5 transition active:scale-90">
+                        <Heart 
+                          size={20} 
+                          className={isLikedByMe ? 'fill-red-500 text-red-500' : 'text-gray-400'} 
+                        />
+                        <span className={`text-sm font-semibold ${isLikedByMe ? 'text-red-500' : 'text-gray-400'}`}>
+                          {item.likes?.length || 0}
+                        </span>
+                      </button>
+
+                      <button onClick={() => toggleComments(item._id)} className="flex items-center gap-1.5 text-gray-400">
+                        <MessageCircle size={20} />
+                        <span className="text-sm font-semibold">{item.comments?.length || 0}</span>
+                      </button>
+                    </div>
+                    <button onClick={() => toggleDetails(item._id)} className="text-xs text-teal-400 font-bold flex items-center gap-1">
+                      {expandedPostId === item._id ? 'အကျဉ်းချုပ်' : 'အသေးစိတ်'}
+                    </button>
+                  </div>
+
+                  {showCommentsFor === item._id && (
+                    <div className="mt-4 pt-4 border-t border-slate-700/50">
+                      <div className="space-y-2 mb-3 max-h-40 overflow-y-auto">
+                        {item.comments?.map((cmt, idx) => (
+                          <div key={idx} className="bg-[#121722] p-2 rounded-lg border border-slate-700">
+                            <p className="text-[10px] font-bold text-teal-400">{cmt.user_id?.name || 'User'}</p>
+                            <p className="text-xs text-gray-300">{cmt.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input 
+                          className="flex-1 bg-[#121722] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                          placeholder="မှတ်ချက်ရေးရန်..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                        />
+                        <button onClick={() => handleAddComment(item._id)} className="bg-teal-500 p-2 rounded-xl text-[#121722]">
+                          <Send size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
