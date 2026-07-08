@@ -31,12 +31,19 @@ export default function Deposit() {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        if (res.data && res.data.success) {
+                if (res.data && res.data.success) {
           setAdminAccounts({
-            kpay: { name: 'Wam Trading', phone: res.data.setting.kpayNumber || 'No Number' },
-            wave: { name: 'Wam Trading', phone: res.data.setting.waveNumber || 'No Number' }
+            kpay: { 
+              name: res.data.setting.kpayAccountName || 'Wam Trading', // 👈 Backend က နာမည်အစစ်ကို ယူမည်
+              phone: res.data.setting.kpayNumber || 'No Number' 
+            },
+            wave: { 
+              name: res.data.setting.waveAccountName || 'Wam Trading', // 👈 Backend က နာမည်အစစ်ကို ယူမည်
+              phone: res.data.setting.waveNumber || 'No Number' 
+            }
           });
         }
+
       } catch (error) {
         console.error("Setting Fetch Error", error);
         setAdminAccounts({

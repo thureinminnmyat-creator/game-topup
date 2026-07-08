@@ -105,8 +105,6 @@ export default function Setting() {
   return (
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6 relative">
       <h2 className="text-2xl font-bold mb-6">ဆက်တင် (Settings)</h2>
-      <h2 className="text-2xl font-bold mb-6">ဆက်တင် (Settings)</h2>
-
       {/* ၁။ Profile & Wallet Section (တကယ့် Database က ဒေတာများ ပြပါမည်) */}
       <div className="bg-[#rgba] p-4 rounded-2xl border border-slate-700 shadow-lg mb-6">
         <div className="flex items-center gap-4 mb-5 pb-5 border-b border-slate-700/50">

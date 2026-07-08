@@ -83,10 +83,21 @@ export default function Topup() {
   };
 
   // USD မှ MMK သို့ ပြောင်းပေးသည့် Function
+    // USD မှ MMK သို့ ပြောင်းပေးသည့် Function
   const calculateMMK = (usdPrice) => {
-    // ဈေးနှုန်းကို Rate ဖြင့် မြှောက်ပြီး ကိန်းပြည့်ဖြစ်အောင် ဖြတ်ပါမည်
-    return Math.ceil(parseFloat(usdPrice) * usdRate); 
+    if (!usdPrice) return 0; // ဈေးနှုန်း မပါလာလျှင် 0 ဟု သတ်မှတ်မည်
+
+    // 💡 အရေးကြီးဆုံးအပိုင်း: "$1.50" သို့မဟုတ် "1.5 USD" ထဲမှ ဂဏန်း (1.5) ကိုသာ သီးသန့် ဆွဲထုတ်မည်
+    const cleanPrice = usdPrice.toString().replace(/[^0-9.]/g, ''); 
+    
+    const price = parseFloat(cleanPrice);
+    const rate = parseFloat(usdRate) || 3500; // Rate မရှိခဲ့လျှင် 3500 ဖြင့် မြှောက်မည်
+
+    if (isNaN(price)) return 0; // Error ဆက်တက်နေပါက 0 ပြမည်
+
+    return Math.ceil(price * rate); 
   };
+
 
   // တကယ့် ဝယ်ယူမှု ပြုလုပ်မည့် Function
   const handlePurchase = async () => {
