@@ -98,9 +98,18 @@ export default function Social() {
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
                   <div className="flex items-center gap-5">
                     <button onClick={() => handleLike(item._id)} className="flex items-center gap-1.5 transition active:scale-90">
-                      <Heart size={20} className={item.likes?.includes(localStorage.getItem('userId')) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
-                      <span className="text-sm font-semibold text-gray-400">{item.likes?.length || 0}</span>
-                    </button>
+  <Heart 
+    size={20} 
+    className={
+      Array.isArray(item.likes) && 
+      item.likes.map(id => id.toString()).includes(localStorage.getItem('userId'))
+        ? 'fill-red-500 text-red-500' 
+        : 'text-gray-400'
+    } 
+  />
+  <span className="text-sm font-semibold text-gray-400">{item.likes?.length || 0}</span>
+</button>
+
                     <button onClick={() => toggleComments(item._id)} className="flex items-center gap-1.5 text-gray-400">
                       <MessageCircle size={20} />
                       <span className="text-sm font-semibold">{item.comments?.length || 0}</span>
