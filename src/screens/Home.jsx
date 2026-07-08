@@ -46,7 +46,7 @@ const HomePage = () => {
       <header className="flex justify-between items-center p-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-full flex items-center justify-center text-[#121722] font-black text-sm shadow-md shadow-teal-500/20">
-            W
+            F
           </div>
           <div>
             <h1 className="text-lg font-bold leading-tight text-white">Wam Trading</h1>
@@ -84,12 +84,12 @@ const HomePage = () => {
       {/* 2. Marquee Announcement */}
       <div className="mx-4 bg-teal-900/30 border border-teal-500/30 rounded-lg p-1.5 overflow-hidden mb-6 flex items-center">
         <marquee className="text-teal-400 text-sm font-medium pt-1" scrollamount="5">
-          ✨ Wam Trading မှ နွေးထွေးစွာ ကြိုဆိုပါသည်။ ယုံကြည်စိတ်ချစွာ ဝယ်ယူအားပေးနိုင်ပါသည်။ ✨
+          ✨ Faygo Games Shopမှ နွေးထွေးစွာ ကြိုဆိုပါသည်။ ယုံကြည်စိတ်ချစွာ ဝယ်ယူအားပေးနိုင်ပါသည်။ ✨
         </marquee>
       </div>
 
       <div className="px-4">
-        <h2 className="text-xl font-bold mb-4 text-white">Welcome to Wam Trading!</h2>
+        <h2 className="text-xl font-bold mb-4 text-white">Welcome to Faygo Games Shop!</h2>
 
         {/* 3. Action Buttons */}
         <div className="flex gap-3 mb-6">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronLeft, UserCheck, ShoppingCart, Gem } from 'lucide-react';
+import { ChevronLeft, UserCheck, ShoppingCart, Gem,  } from 'lucide-react';
 
 export default function Topup() {
   const { gameCode } = useParams();
@@ -19,9 +19,7 @@ export default function Topup() {
   const [nameError, setNameError] = useState('');
 
   const [selectedPackage, setSelectedPackage] = useState(null);
-  
-  // 💡 Server ID လို/မလို ထိန်းချုပ်မည့် State အသစ်
-  const [needsServerId, setNeedsServerId] = useState(true); 
+  const [needsServerId, setNeedsServerId] = useState(false); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,42 +27,51 @@ export default function Topup() {
         const token = localStorage.getItem('token');
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
-        // ၁။ USD Rate ဆွဲယူခြင်း
+        // ၁။ USD Rate
         try {
           const settingRes = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/settings', config);
           if (settingRes.data && settingRes.data.success && settingRes.data.setting?.usdRate) {
             setUsdRate(settingRes.data.setting.usdRate);
           }
-        } catch (err) {
-          console.error("Setting API Error, Default 3500 သုံးပါမည်");
-        }
+        } catch (err) {}
 
-        // ၂။ 💡 လိုအပ်သော Fields (Server ID လို/မလို) စစ်ဆေးခြင်း
+        // ၂။ Fields API ခေါ်ယူခြင်း (Server ID လို/မလို စစ်ရန်)
+                // 💡 Fields API စစ်ဆေးသည့်အပိုင်းကို အောက်ပါအတိုင်း ပြင်ပါ
+                // 💡 Fields API စစ်ဆေးသည့်အပိုင်း (ပိုမိုသေချာအောင် ပြင်ဆင်ထားသည်)
         try {
           const fieldsRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/fields`);
-          const fieldsData = fieldsRes.data.data;
+          const fieldsData = fieldsRes.data.data; // Backend ကပေးတဲ့ response ကိုကြည့်ပါ
           
-          let fieldCount = 2; // Default အနေဖြင့် (၂) ခုလုံးပြထားမည်
-          if (Array.isArray(fieldsData)) {
-            fieldCount = fieldsData.length;
-          } else if (fieldsData?.fields && Array.isArray(fieldsData.fields)) {
-            fieldCount = fieldsData.fields.length;
-          }
+          setDebugInfo(fieldsData); 
 
-          // RapidAPI က Player ID တစ်ခုတည်းပဲလိုတယ် (Length === 1) လို့ ပြန်လာခဲ့လျှင် Server ID ကို ဖျောက်မည်
-          if (fieldCount === 1) {
-            setNeedsServerId(false); 
+          // 💡 Logic အသစ်: API ပြန်ပို့တဲ့ထဲမှာ ဘာတွေပါလဲ စစ်မည်
+          // fieldsData ထဲမှာ "userid" တစ်ခုတည်းရှိရင်ပဲ Server ID မလိုဘူးလို့ သတ်မှတ်မည်
+          
+          let hasServerId = true; // Default အနေနဲ့ serverid လိုတယ်လို့ သတ်မှတ်မည်
+
+          // အကယ်၍ fields ထဲမှာ 'zoneid', 'serverid', 'zone' စတဲ့ စာသားတွေ ပါမလာရင်ပဲ Server ID မလိုဘူးလို့ သတ်မှတ်မယ်
+          const fieldsArray = fieldsData.fields || [];
+          
+          // အကယ်၍ fields ထဲမှာ 'userid' သို့မဟုတ် 'uid' တစ်ခုတည်းပဲ ပါလာရင် (သို့မဟုတ် length က 1 ဖြစ်နေရင်)
+          if (fieldsArray.length === 1) {
+            hasServerId = false;
           } else {
-            setNeedsServerId(true);
+            // MLBB လိုဂိမ်းတွေမှာ fields ထဲမှာ 'userid' နဲ့ 'zoneid' တွဲပါလာတတ်တယ်
+            hasServerId = fieldsArray.some(f => 
+              f.toLowerCase().includes('zone') || 
+              f.toLowerCase().includes('server')
+            );
           }
+          
+          setNeedsServerId(hasServerId);
         } catch (err) {
           console.error("Fields API Error", err);
           setNeedsServerId(true); 
         }
 
-        // ၃။ ဂိမ်း Package များ ဆွဲထုတ်ခြင်း
+
+        // ၃။ ဂိမ်း Packages 
         const catalogRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/catalogue`);
-        
         let fetchedPackages = [];
         if (Array.isArray(catalogRes.data)) fetchedPackages = catalogRes.data;
         else if (Array.isArray(catalogRes.data?.data)) fetchedPackages = catalogRes.data.data;
@@ -95,7 +102,7 @@ export default function Topup() {
       const response = await axios.post('https://topup-bk-production.up.railway.app/api/topup/validate-player', {
         gameCode,
         playerId,
-        serverId: needsServerId ? serverId : "" // 💡 Server ID မလိုလျှင် အလွတ်ပို့မည်
+        serverId: needsServerId ? serverId : "" 
       });
 
       if (response.data && response.data.success) {
@@ -161,16 +168,21 @@ export default function Topup() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24">
-      <div className="flex items-center p-4 bg-[#1A2235] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">
-          <ChevronLeft size={24} />
-        </button>
-        <h2 className="text-lg font-bold ml-2 uppercase tracking-wide">{gameCode} Top-up</h2>
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24">
+      <div className="flex items-center justify-between p-4 bg-[#1A2235] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
+        <div className="flex items-center">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">
+            <ChevronLeft size={24} />
+          </button>
+          <h2 className="text-lg font-bold ml-2 uppercase tracking-wide">{gameCode} Top-up</h2>
+        </div>
+        
       </div>
 
       <div className="p-4 space-y-6">
         
+      
+
         {/* အဆင့် ၁: Player အချက်အလက်များ ထည့်သွင်းခြင်း */}
         <div className="bg-[#1A2235] p-5 rounded-2xl border border-slate-700 shadow-lg">
           <div className="flex items-center gap-3 mb-5">
@@ -179,7 +191,6 @@ export default function Topup() {
           </div>
           
           <div className="flex gap-3 mb-4 transition-all">
-            {/* 💡 Server ID မလိုလျှင် Player ID အကွက် အပြည့်ဖြစ်သွားမည် */}
             <div className={needsServerId ? "flex-1" : "w-full"}>
               <input 
                 type="text" 
@@ -190,7 +201,6 @@ export default function Topup() {
               />
             </div>
             
-            {/* 💡 Server ID လိုအပ်သော ဂိမ်းများအတွက်သာ ပေါ်မည် */}
             {needsServerId && (
               <div className="w-1/3 animate-fade-in-up">
                 <input 
