@@ -19,6 +19,9 @@ export default function Topup() {
   const [nameError, setNameError] = useState('');
 
   const [selectedPackage, setSelectedPackage] = useState(null);
+  
+  // 💡 Server ID လို/မလို ထိန်းချုပ်မည့် State အသစ်
+  const [needsServerId, setNeedsServerId] = useState(true); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +29,7 @@ export default function Topup() {
         const token = localStorage.getItem('token');
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
-        // ၁။ 💡 USD Rate ဆွဲယူမည့် လမ်းကြောင်းကို Public API သို့ ပြောင်းထားသည်
+        // ၁။ USD Rate ဆွဲယူခြင်း
         try {
           const settingRes = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/settings', config);
           if (settingRes.data && settingRes.data.success && settingRes.data.setting?.usdRate) {
@@ -36,10 +39,32 @@ export default function Topup() {
           console.error("Setting API Error, Default 3500 သုံးပါမည်");
         }
 
-        // ၂။ ဂိမ်း Package များ ဆွဲထုတ်ခြင်း
+        // ၂။ 💡 လိုအပ်သော Fields (Server ID လို/မလို) စစ်ဆေးခြင်း
+        try {
+          const fieldsRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/fields`);
+          const fieldsData = fieldsRes.data.data;
+          
+          let fieldCount = 2; // Default အနေဖြင့် (၂) ခုလုံးပြထားမည်
+          if (Array.isArray(fieldsData)) {
+            fieldCount = fieldsData.length;
+          } else if (fieldsData?.fields && Array.isArray(fieldsData.fields)) {
+            fieldCount = fieldsData.fields.length;
+          }
+
+          // RapidAPI က Player ID တစ်ခုတည်းပဲလိုတယ် (Length === 1) လို့ ပြန်လာခဲ့လျှင် Server ID ကို ဖျောက်မည်
+          if (fieldCount === 1) {
+            setNeedsServerId(false); 
+          } else {
+            setNeedsServerId(true);
+          }
+        } catch (err) {
+          console.error("Fields API Error", err);
+          setNeedsServerId(true); 
+        }
+
+        // ၃။ ဂိမ်း Package များ ဆွဲထုတ်ခြင်း
         const catalogRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/catalogue`);
         
-        // 💡 API ကလာတဲ့ Data ပုံစံမျိုးစုံကို ဖမ်းယူနိုင်အောင် ပြင်ဆင်ထားသည်
         let fetchedPackages = [];
         if (Array.isArray(catalogRes.data)) fetchedPackages = catalogRes.data;
         else if (Array.isArray(catalogRes.data?.data)) fetchedPackages = catalogRes.data.data;
@@ -70,14 +95,14 @@ export default function Topup() {
       const response = await axios.post('https://topup-bk-production.up.railway.app/api/topup/validate-player', {
         gameCode,
         playerId,
-        serverId
+        serverId: needsServerId ? serverId : "" // 💡 Server ID မလိုလျှင် အလွတ်ပို့မည်
       });
 
       if (response.data && response.data.success) {
         setPlayerName(response.data.data.name || response.data.data.username || response.data.data.charname); 
       }
     } catch (error) {
-      setNameError(error.response?.data?.message || "နာမည်ရှာမတွေ့ပါ။ ID နှင့် Server အမှန်ထည့်ပါ။");
+      setNameError(error.response?.data?.message || "နာမည်ရှာမတွေ့ပါ။ အချက်အလက်များ မှန်/မမှန် စစ်ဆေးပါ။");
     } finally {
       setCheckingName(false);
     }
@@ -103,7 +128,6 @@ export default function Topup() {
       return;
     }
 
-    // 💡 ရွေးချယ်ထားသော Package ၏ ဈေးနှုန်းအမှန်ကို ရှာဖွေခြင်း
     const rawSelectedPrice = selectedPackage.price || selectedPackage.amount || selectedPackage.price_usd || selectedPackage.original_price || 0;
     const mmkPrice = calculateMMK(rawSelectedPrice);
     const pkgId = selectedPackage.id || selectedPackage.code || selectedPackage.packageId;
@@ -116,7 +140,7 @@ export default function Topup() {
       const response = await axios.post('https://topup-bk-production.up.railway.app/api/topup/purchase', {
         gameCode,
         playerId,
-        serverId,
+        serverId: needsServerId ? serverId : "",
         playerName,
         packageId: pkgId,
         packageName: selectedPackage.name,
@@ -138,7 +162,6 @@ export default function Topup() {
 
   return (
     <div className="min-h-screen bg-[#121722] text-white font-sans pb-24">
-      {/* Header */}
       <div className="flex items-center p-4 bg-[#1A2235] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">
           <ChevronLeft size={24} />
@@ -155,8 +178,9 @@ export default function Topup() {
             <h3 className="font-bold text-sm text-gray-100">အကောင့် အချက်အလက် ထည့်ပါ</h3>
           </div>
           
-          <div className="flex gap-3 mb-4">
-            <div className="flex-1">
+          <div className="flex gap-3 mb-4 transition-all">
+            {/* 💡 Server ID မလိုလျှင် Player ID အကွက် အပြည့်ဖြစ်သွားမည် */}
+            <div className={needsServerId ? "flex-1" : "w-full"}>
               <input 
                 type="text" 
                 placeholder="Player ID" 
@@ -165,15 +189,19 @@ export default function Topup() {
                 className="w-full bg-[#121722] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition shadow-inner"
               />
             </div>
-            <div className="w-1/3">
-              <input 
-                type="text" 
-                placeholder="Server ID" 
-                value={serverId}
-                onChange={(e) => setServerId(e.target.value)}
-                className="w-full bg-[#121722] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition shadow-inner"
-              />
-            </div>
+            
+            {/* 💡 Server ID လိုအပ်သော ဂိမ်းများအတွက်သာ ပေါ်မည် */}
+            {needsServerId && (
+              <div className="w-1/3 animate-fade-in-up">
+                <input 
+                  type="text" 
+                  placeholder="Server ID" 
+                  value={serverId}
+                  onChange={(e) => setServerId(e.target.value)}
+                  className="w-full bg-[#121722] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition shadow-inner"
+                />
+              </div>
+            )}
           </div>
 
           <button 
@@ -214,12 +242,9 @@ export default function Topup() {
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {Array.isArray(packages) && packages.map((pkg, idx) => {
-                
-                // 💡 ပြဿနာဖြေရှင်းထားသော နေရာ: ဈေးနှုန်းလာနိုင်သော နာမည်မျိုးစုံကို ဖမ်းယူခြင်း
                 const rawPrice = pkg.price || pkg.amount || pkg.usd_price || pkg.price_usd || pkg.original_price || 0;
                 const mmkPrice = calculateMMK(rawPrice);
-                
-                const pkgId = pkg.id || pkg.code || idx; // ID မရှိလျှင် code သို့မဟုတ် index ကို သုံးမည်
+                const pkgId = pkg.id || pkg.code || idx;
                 const isSelected = selectedPackage?.id === pkg.id || selectedPackage?.code === pkg.code;
 
                 return (
@@ -238,7 +263,6 @@ export default function Topup() {
                       </div>
                     )}
                     
-                    {/* 💡 API က ပုံပို့ပေးလျှင် ပုံပြမည်၊ မပို့ပေးလျှင် Icon ပြမည် */}
                     {pkg.image || pkg.image_url ? (
                       <img src={pkg.image || pkg.image_url} alt={pkg.name} className="w-10 h-10 object-contain mb-2" />
                     ) : (
@@ -263,7 +287,7 @@ export default function Topup() {
         </div>
       </div>
 
-      {/* အောက်ခြေမှ Floating Checkout Bar */}
+      {/* Floating Checkout Bar */}
       {selectedPackage && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-[#1A2235] rounded-2xl p-4 shadow-2xl border border-slate-600 flex justify-between items-center z-40 animate-fade-in-up">
           <div>
