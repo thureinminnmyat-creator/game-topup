@@ -7,20 +7,17 @@ export default function Topup() {
   const { gameCode } = useParams();
   const navigate = useNavigate();
 
-  // Data States
   const [packages, setPackages] = useState([]);
-  const [usdRate, setUsdRate] = useState(3500); // Default Rate
+  const [usdRate, setUsdRate] = useState(3500); 
   const [loading, setLoading] = useState(true);
-  const [purchasing, setPurchasing] = useState(false); // ဝယ်ယူနေစဉ် Loading ပြရန်
+  const [purchasing, setPurchasing] = useState(false); 
   
-  // Player Data States
   const [playerId, setPlayerId] = useState('');
   const [serverId, setServerId] = useState('');
   const [playerName, setPlayerName] = useState(null);
   const [checkingName, setCheckingName] = useState(false);
   const [nameError, setNameError] = useState('');
 
-  // Selected Package State
   const [selectedPackage, setSelectedPackage] = useState(null);
 
   useEffect(() => {
@@ -29,21 +26,26 @@ export default function Topup() {
         const token = localStorage.getItem('token');
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
-        // ၁။ Admin Panel မှ USD Rate ကို လှမ်းယူခြင်း
+        // ၁။ 💡 USD Rate ဆွဲယူမည့် လမ်းကြောင်းကို Public API သို့ ပြောင်းထားသည်
         try {
-          const settingRes = await axios.get('https://topup-bk-production.up.railway.app/api/settings', config);
+          const settingRes = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/settings', config);
           if (settingRes.data && settingRes.data.success && settingRes.data.setting?.usdRate) {
             setUsdRate(settingRes.data.setting.usdRate);
           }
         } catch (err) {
-          console.error("Setting API ခေါ်ယူ၍ မရပါ။ Default Rate ကို သုံးပါမည်။");
+          console.error("Setting API Error, Default 3500 သုံးပါမည်");
         }
 
-        // ၂။ ဂိမ်း၏ Package နှင့် ဈေးနှုန်းများကို ဆွဲထုတ်ခြင်း
+        // ၂။ ဂိမ်း Package များ ဆွဲထုတ်ခြင်း
         const catalogRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/catalogue`);
-        if (catalogRes.data && catalogRes.data.success) {
-          setPackages(catalogRes.data.data.catalogues || []);
-        }
+        
+        // 💡 API ကလာတဲ့ Data ပုံစံမျိုးစုံကို ဖမ်းယူနိုင်အောင် ပြင်ဆင်ထားသည်
+        let fetchedPackages = [];
+        if (Array.isArray(catalogRes.data)) fetchedPackages = catalogRes.data;
+        else if (Array.isArray(catalogRes.data?.data)) fetchedPackages = catalogRes.data.data;
+        else if (Array.isArray(catalogRes.data?.data?.catalogues)) fetchedPackages = catalogRes.data.data.catalogues;
+        
+        setPackages(fetchedPackages);
       } catch (error) {
         console.error("Catalogue Error:", error);
       } finally {
@@ -54,7 +56,6 @@ export default function Topup() {
     fetchData();
   }, [gameCode]);
 
-  // Player နာမည် မှန်/မမှန် စစ်ဆေးခြင်း
   const handleCheckName = async () => {
     if (!playerId) {
       setNameError("Player ID ထည့်ရန် လိုအပ်ပါသည်။");
@@ -73,43 +74,28 @@ export default function Topup() {
       });
 
       if (response.data && response.data.success) {
-        setPlayerName(response.data.data.name || response.data.data.username); 
+        setPlayerName(response.data.data.name || response.data.data.username || response.data.data.charname); 
       }
     } catch (error) {
-      setNameError(error.response?.data?.message || "နာမည်ရှာမတွေ့ပါ။ ID နှင့် Server မှန်/မမှန် စစ်ဆေးပါ။");
+      setNameError(error.response?.data?.message || "နာမည်ရှာမတွေ့ပါ။ ID နှင့် Server အမှန်ထည့်ပါ။");
     } finally {
       setCheckingName(false);
     }
   };
 
-  // USD မှ MMK သို့ ပြောင်းပေးသည့် Function
-    // USD မှ MMK သို့ ပြောင်းပေးသည့် Function
   const calculateMMK = (usdPrice) => {
-    if (!usdPrice) return 0; // ဈေးနှုန်း မပါလာလျှင် 0 ဟု သတ်မှတ်မည်
-
-    // 💡 အရေးကြီးဆုံးအပိုင်း: "$1.50" သို့မဟုတ် "1.5 USD" ထဲမှ ဂဏန်း (1.5) ကိုသာ သီးသန့် ဆွဲထုတ်မည်
+    if (!usdPrice) return 0;
     const cleanPrice = usdPrice.toString().replace(/[^0-9.]/g, ''); 
-    
     const price = parseFloat(cleanPrice);
-    const rate = parseFloat(usdRate) || 3500; // Rate မရှိခဲ့လျှင် 3500 ဖြင့် မြှောက်မည်
-
-    if (isNaN(price)) return 0; // Error ဆက်တက်နေပါက 0 ပြမည်
-
+    const rate = parseFloat(usdRate) || 3500;
+    if (isNaN(price)) return 0;
     return Math.ceil(price * rate); 
   };
 
-
-  // တကယ့် ဝယ်ယူမှု ပြုလုပ်မည့် Function
   const handlePurchase = async () => {
-    if (!playerName) {
-      alert("ကျေးဇူးပြု၍ Player နာမည်ကို အရင်စစ်ဆေးပါ။");
-      return;
-    }
-    if (!selectedPackage) {
-      alert("ဝယ်ယူမည့် ပက်ကေ့ချ်ကို ရွေးချယ်ပါ။");
-      return;
-    }
-
+    if (!playerName) return alert("ကျေးဇူးပြု၍ Player နာမည်ကို အရင်စစ်ဆေးပါ။");
+    if (!selectedPackage) return alert("ဝယ်ယူမည့် ပက်ကေ့ချ်ကို ရွေးချယ်ပါ။");
+    
     const token = localStorage.getItem('token');
     if (!token) {
       alert("ဝယ်ယူရန် အကောင့်ဝင် (Login) ရန် လိုအပ်ပါသည်။");
@@ -117,32 +103,33 @@ export default function Topup() {
       return;
     }
 
-    const mmkPrice = calculateMMK(selectedPackage.price);
+    // 💡 ရွေးချယ်ထားသော Package ၏ ဈေးနှုန်းအမှန်ကို ရှာဖွေခြင်း
+    const rawSelectedPrice = selectedPackage.price || selectedPackage.amount || selectedPackage.price_usd || selectedPackage.original_price || 0;
+    const mmkPrice = calculateMMK(rawSelectedPrice);
+    const pkgId = selectedPackage.id || selectedPackage.code || selectedPackage.packageId;
+
     const confirmMsg = `${playerName} အကောင့်သို့ ${selectedPackage.name} အား ${mmkPrice} Ks ဖြင့် ဝယ်ယူမည်မှာ သေချာပါသလား?`;
-    
     if (!window.confirm(confirmMsg)) return;
 
     setPurchasing(true);
     try {
-      // ⚠️ ဤနေရာတွင် သင့် Backend ၏ အမှန်တကယ် Order တင်သည့် လမ်းကြောင်းကို ထည့်ပါ
-      const response = await axios.post('https://topup-bk-production.up.railway.app/api/orders/create', {
+      const response = await axios.post('https://topup-bk-production.up.railway.app/api/topup/purchase', {
         gameCode,
         playerId,
         serverId,
         playerName,
-        packageId: selectedPackage.id,
+        packageId: pkgId,
         packageName: selectedPackage.name,
-        price: mmkPrice // MMK ဖြင့် ပို့ပါမည်
+        price: mmkPrice 
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       if (response.data && response.data.success) {
         alert("ဝယ်ယူခြင်း အောင်မြင်ပါသည်။");
-        navigate('/wallet'); // ဝယ်ပြီးပါက History / Wallet စာမျက်နှာသို့ သွားမည်
+        navigate('/wallet'); 
       }
     } catch (error) {
-      console.error("Purchase Error:", error);
       alert(error.response?.data?.message || "ဝယ်ယူခြင်း မအောင်မြင်ပါ။ လက်ကျန်ငွေ လုံလောက်မှု ရှိ/မရှိ စစ်ဆေးပါ။");
     } finally {
       setPurchasing(false);
@@ -150,7 +137,7 @@ export default function Topup() {
   };
 
   return (
-    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24">
+    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24">
       {/* Header */}
       <div className="flex items-center p-4 bg-[#1A2235] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">
@@ -192,13 +179,12 @@ export default function Topup() {
           <button 
             onClick={handleCheckName}
             disabled={checkingName}
-            className="w-full bg-teal-500 hover:bg-teal-600 text-[#121722] rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2 transition disabled:opacity-50"
+            className="w-full bg-teal-500 hover:bg-teal-600 text-[#121722] rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2 transition disabled:opacity-50 shadow-md"
           >
             <UserCheck size={18} />
             {checkingName ? 'စစ်ဆေးနေပါသည်...' : 'နာမည် စစ်ဆေးမည် (Check Name)'}
           </button>
 
-          {/* နာမည်စစ်ဆေးမှု ရလဒ်ပြသရန် */}
           {playerName && (
             <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center gap-3 animate-fade-in-up">
               <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center text-green-400">
@@ -227,33 +213,43 @@ export default function Topup() {
             <p className="text-teal-400 text-sm text-center animate-pulse py-8">ပက်ကေ့ချ်များ ရှာဖွေနေပါသည်...</p>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {Array.isArray(packages) && packages.map((pkg) => {
-                const isSelected = selectedPackage?.id === pkg.id;
-                const mmkPrice = calculateMMK(pkg.price);
+              {Array.isArray(packages) && packages.map((pkg, idx) => {
+                
+                // 💡 ပြဿနာဖြေရှင်းထားသော နေရာ: ဈေးနှုန်းလာနိုင်သော နာမည်မျိုးစုံကို ဖမ်းယူခြင်း
+                const rawPrice = pkg.price || pkg.amount || pkg.usd_price || pkg.price_usd || pkg.original_price || 0;
+                const mmkPrice = calculateMMK(rawPrice);
+                
+                const pkgId = pkg.id || pkg.code || idx; // ID မရှိလျှင် code သို့မဟုတ် index ကို သုံးမည်
+                const isSelected = selectedPackage?.id === pkg.id || selectedPackage?.code === pkg.code;
 
                 return (
                   <div 
-                    key={pkg.id || pkg.name}
+                    key={pkgId}
                     onClick={() => setSelectedPackage(pkg)}
-                    className={`relative p-4 rounded-xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[100px] border-2 overflow-hidden ${
+                    className={`relative p-4 rounded-xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[100px] border overflow-hidden ${
                       isSelected 
                         ? 'bg-teal-500/10 border-teal-400 shadow-[0_0_15px_rgba(45,212,191,0.2)]' 
                         : 'bg-[#121722] border-slate-700 hover:border-slate-600'
                     }`}
                   >
-                    {/* Active အမှန်ခြစ်လေး */}
                     {isSelected && (
                       <div className="absolute top-0 right-0 bg-teal-400 text-[#121722] w-6 h-6 flex items-center justify-center rounded-bl-xl font-bold text-xs">
                         ✓
                       </div>
                     )}
                     
-                    <Gem size={24} className={`mb-2 ${isSelected ? 'text-teal-400' : 'text-gray-500'}`} />
-                    <p className={`font-black text-sm text-center mb-1 line-clamp-2 ${isSelected ? 'text-white' : 'text-gray-300'}`}>
-                      {pkg.name}
+                    {/* 💡 API က ပုံပို့ပေးလျှင် ပုံပြမည်၊ မပို့ပေးလျှင် Icon ပြမည် */}
+                    {pkg.image || pkg.image_url ? (
+                      <img src={pkg.image || pkg.image_url} alt={pkg.name} className="w-10 h-10 object-contain mb-2" />
+                    ) : (
+                      <Gem size={24} className={`mb-2 ${isSelected ? 'text-teal-400' : 'text-gray-500'}`} />
+                    )}
+                    
+                    <p className={`font-black text-xs text-center mb-1 line-clamp-2 ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                      {pkg.name || 'Unknown Package'}
                     </p>
                     <p className={`text-[13px] font-bold ${isSelected ? 'text-teal-400' : 'text-gray-400'}`}>
-                      {mmkPrice} Ks
+                      {mmkPrice > 0 ? `${mmkPrice} Ks` : '0 Ks'}
                     </p>
                   </div>
                 );
@@ -272,7 +268,9 @@ export default function Topup() {
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-[#1A2235] rounded-2xl p-4 shadow-2xl border border-slate-600 flex justify-between items-center z-40 animate-fade-in-up">
           <div>
             <p className="text-[11px] text-gray-400 mb-0.5">စုစုပေါင်း ကျသင့်ငွေ</p>
-            <p className="text-xl font-black text-teal-400">{calculateMMK(selectedPackage.price)} Ks</p>
+            <p className="text-xl font-black text-teal-400">
+              {calculateMMK(selectedPackage.price || selectedPackage.amount || selectedPackage.usd_price || 0)} Ks
+            </p>
           </div>
           <button 
             onClick={handlePurchase}
