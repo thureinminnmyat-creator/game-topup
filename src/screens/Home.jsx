@@ -40,7 +40,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24"> {/* 💡 Background Color ပြင်ထားသည် */}
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24"> {/* 💡 Background Color ပြင်ထားသည် */}
       
       {/* 1. Header Section */}
       <header className="flex justify-between items-center p-4">

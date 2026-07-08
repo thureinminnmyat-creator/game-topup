@@ -68,7 +68,7 @@ export default function Wallet() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24 px-4 pt-6">
+    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 px-4 pt-6">
       
       <div className="flex items-center mb-6">
         <button onClick={() => navigate('/')} className="p-2 -ml-2 text-gray-400 hover:text-white transition cursor-pointer">

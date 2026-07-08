@@ -44,21 +44,33 @@ export default function AdminSettings() {
   }, []);
 
   // Save လုပ်မည့် Function (ခလုတ်အားလုံးအတွက် ပေါင်းသုံးထားသည်)
-  const handleSave = async (sectionName) => {
+    const handleSave = async (sectionName) => {
     setSaving(true);
     try {
       const adminToken = localStorage.getItem('adminToken');
+      
+      let finalSettings = { ...settings };
+      if (sectionName === 'Banner' && newBanner.trim() !== '') {
+         finalSettings.banners = [...(finalSettings.banners || []), newBanner.trim()];
+         setNewBanner('');
+         setSettings(finalSettings);
+      }
+
       await axios.put('https://topup-bk-production.up.railway.app/api/admin/settings', 
-        settings,
+        finalSettings,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       alert(`${sectionName} အချက်အလက်များ သိမ်းဆည်းပြီးပါပြီ။`);
     } catch (error) {
-      alert('အမှားအယွင်းဖြစ်ပွားခဲ့ပါသည်။');
+      // 💡 ပြဿနာ အစစ်အမှန်ကို ဖော်ပြပေးမည့် အပိုင်း
+      const errorMsg = error.response?.data?.message || error.message;
+      alert(`Save လုပ်၍မရပါ Error: ${errorMsg}`);
+      console.error("Save Error:", error.response || error);
     } finally {
       setSaving(false);
     }
   };
+
 
   const addBanner = () => {
     if (!newBanner) return;
