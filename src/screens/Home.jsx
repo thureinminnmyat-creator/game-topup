@@ -39,21 +39,16 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24"> 
       
-            {/* 1. Header Section */}
+      {/* 1. Header Section */}
       <header className="flex justify-between items-center p-4">
         <div className="flex items-center gap-3">
-          {/* 💡 ဒီနေရာမှာ အစ်ကို့ရဲ့ ပုံကို ထည့်ပါ */}
+          {/* 💡 <img> tag ကို သေချာပိတ်ပေးထားပါသည် */}
           <img 
-            src="/images/logo.jpg" // 👈 ဒီနေရာမှာ အစ်ကို့ပုံရဲ့ URL သို့မဟုတ် လမ်းကြောင်းကို ထည့်ပါ
+            src="/images/logo.jpg" 
             alt="My Logo" 
             className="w-10 h-10 rounded-full object-cover shadow-md shadow-teal-500/20 border-2 border-teal-500/30"
           />
           <div>
-            <h1 className="text-lg font-bold leading-tight text-white">Faygo Digital Store</h1>
-            <p className="text-[10px] text-gray-400">Best place to buy items</p>
-          </div>
-        </div>
-
             <h1 className="text-lg font-bold leading-tight text-white">Faygo Digital Store</h1>
             <p className="text-[10px] text-gray-400">Best place to buy items</p>
           </div>
@@ -101,7 +96,6 @@ const HomePage = () => {
 
         {/* 3. Action Buttons */}
         <div className="flex gap-3 mb-6">
-          {/* 💡 Daily Bonus Button */}
           <button 
             onClick={() => navigate('/daily-bonus')} 
             className="flex items-center justify-center gap-2 flex-1 py-3.5 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-800 transition active:scale-95 shadow-md"
@@ -110,7 +104,6 @@ const HomePage = () => {
             <span className="font-medium text-teal-400 text-sm">Daily Bonus</span>
           </button>
           
-          {/* 💡 Lucky Spin Button */}
           <button 
             onClick={() => navigate('/lucky-spin')} 
             className="flex items-center justify-center gap-2 flex-1 py-3.5 bg-[#1A2235] border border-slate-700 rounded-xl hover:bg-slate-800 transition active:scale-95 shadow-md"
