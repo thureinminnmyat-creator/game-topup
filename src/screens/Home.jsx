@@ -39,13 +39,21 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24"> 
       
-      {/* 1. Header Section */}
+            {/* 1. Header Section */}
       <header className="flex justify-between items-center p-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-full flex items-center justify-center text-[#121722] font-black text-sm shadow-md shadow-teal-500/20">
-            F
-          </div>
+          {/* 💡 ဒီနေရာမှာ အစ်ကို့ရဲ့ ပုံကို ထည့်ပါ */}
+          <img 
+            src="/images/logo.jpg" // 👈 ဒီနေရာမှာ အစ်ကို့ပုံရဲ့ URL သို့မဟုတ် လမ်းကြောင်းကို ထည့်ပါ
+            alt="My Logo" 
+            className="w-10 h-10 rounded-full object-cover shadow-md shadow-teal-500/20 border-2 border-teal-500/30"
+          />
           <div>
+            <h1 className="text-lg font-bold leading-tight text-white">Faygo Digital Store</h1>
+            <p className="text-[10px] text-gray-400">Best place to buy items</p>
+          </div>
+        </div>
+
             <h1 className="text-lg font-bold leading-tight text-white">Faygo Digital Store</h1>
             <p className="text-[10px] text-gray-400">Best place to buy items</p>
           </div>
