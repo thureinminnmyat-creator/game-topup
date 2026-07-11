@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Bell, Gift, HelpCircle, LogIn, User } from 'lucide-react'; 
@@ -37,12 +38,11 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24"> 
+    <div className="min-h-screen bg-[#121722] text-white font-sans pb-24"> 
       
       {/* 1. Header Section */}
       <header className="flex justify-between items-center p-4">
         <div className="flex items-center gap-3">
-          {/* 💡 <img> tag ကို သေချာပိတ်ပေးထားပါသည် */}
           <img 
             src="/images/logo.jpg" 
             alt="My Logo" 
@@ -55,7 +55,6 @@ const HomePage = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          {/* 💡 Bell Notification Button */}
           <button 
             onClick={() => navigate('/notifications')} 
             className="p-2 bg-slate-800 rounded-xl text-teal-400 relative border border-slate-700/50 hover:bg-slate-700 transition active:scale-95"
@@ -64,7 +63,6 @@ const HomePage = () => {
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
           </button>
 
-          {/* Dynamic Login Button */}
           {isLoggedIn ? (
             <button 
               onClick={() => navigate('/setting')} 
@@ -157,11 +155,18 @@ const HomePage = () => {
                 onClick={() => navigate(`/topup/${game.gameCode}`)} 
                 className="w-28 sm:w-32 bg-[#1A2235] border border-slate-700 rounded-xl overflow-hidden shadow-lg flex-shrink-0 cursor-pointer hover:ring-2 ring-teal-500 transition active:scale-95"
               >
-                <img 
-                  src={game.imageUrl} 
-                  alt={game.name} 
-                  className="w-full h-28 object-cover bg-black"
-                />
+              <img 
+  // 💡 Database ထဲက လင့်ခ်အမှန်ကို ကိုယ့် Railway ဆာဗာကနေ တစ်ဆင့် ပတ်ဆွဲပါမည် (ISP Block ကို ကျော်ရန်)
+  src={game.imageUrl ? `https://topup-bk-production.up.railway.app/api/topup/image-proxy?url=${encodeURIComponent(game.imageUrl)}` : '/images/logo.jpg'} 
+  alt={game.name} 
+  className="w-full h-28 object-cover bg-[#rgba]"
+  onError={(e) => {
+    e.target.onerror = null; 
+    e.target.src = '/images/logo.jpg'; 
+  }}
+/>
+  
+
                 <div className="p-2 text-center flex items-center justify-center h-12">
                   <p className="text-[10px] font-semibold line-clamp-2 text-gray-200">{game.name}</p>
                 </div>

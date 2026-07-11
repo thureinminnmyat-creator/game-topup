@@ -146,9 +146,22 @@ export default function AdminGames() {
               <div key={game.code || idx} className={`p-4 rounded-2xl border flex flex-col justify-between min-h-[140px] ${game.isAdded ? 'bg-teal-500/10 border-teal-500/50' : 'bg-[#1A2235] border-slate-700'}`}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center bg-slate-800">
-                      {game.image ? <img src={game.image} className="w-full h-full object-cover" /> : <Gamepad2 size={24} className="text-gray-400" />}
-                    </div>
+                  <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center bg-slate-800">
+  {game.image ? (
+    <img 
+      // 💡 Admin Panel တွင်လည်း ပုံများပေါ်စေရန် Proxy ဖြင့် ပတ်ခေါ်ပါသည်
+      src={`https://topup-bk-production.up.railway.app/api/topup/image-proxy?url=${encodeURIComponent(game.image)}`} 
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.target.onerror = null; 
+        e.target.src = '/images/logo.jpg'; 
+      }}
+    />
+  ) : (
+    <Gamepad2 size={24} className="text-gray-400" />
+  )}
+</div>
+
                     <div>
                       <h3 className="font-bold text-sm line-clamp-1">{game.name}</h3>
                       <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">{game.code}</p>

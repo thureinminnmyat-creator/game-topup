@@ -60,11 +60,17 @@ export default function Shop() {
               onClick={() => navigate(`/topup/${game.gameCode}`)} // 💡 Database မှ gameCode ဟု ပြင်ထားသည်
               className="bg-[#1A2235] rounded-xl overflow-hidden shadow-lg cursor-pointer hover:ring-2 ring-teal-500 transition flex flex-col border border-slate-700"
             >
-              <img
-                src={game.imageUrl} // 💡 Database မှ imageUrl ဟု ပြင်ထားသည်
-                alt={game.name}
-                className="w-full aspect-square object-cover bg-black"
-              />
+              <img 
+  // 💡 Database ထဲက လင့်ခ်အမှန်ကို ကိုယ့် Railway ဆာဗာကနေ တစ်ဆင့် ပတ်ဆွဲပါမည် (ISP Block ကို ကျော်ရန်)
+  src={game.imageUrl ? `https://topup-bk-production.up.railway.app/api/topup/image-proxy?url=${encodeURIComponent(game.imageUrl)}` : '/images/logo.jpg'} 
+  alt={game.name} 
+  className="w-full h-28 object-cover bg-[#rgba]"
+  onError={(e) => {
+    e.target.onerror = null; 
+    e.target.src = '/images/logo.jpg'; 
+  }}
+/>
+
               <div className="p-2 text-center flex-grow flex items-center justify-center">
                 <p className="text-[10px] font-semibold line-clamp-2 text-gray-100">{game.name}</p>
               </div>

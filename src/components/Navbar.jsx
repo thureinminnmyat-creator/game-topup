@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, ShoppingCart, Wallet, Globe, Settings } from 'lucide-react';
+import { Home, ShoppingCart, Clock, Globe, Settings } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Navbar() {
@@ -8,10 +8,10 @@ export default function Navbar() {
 
   const navItems = [
     { id: '/', label: 'Home', icon: Home },
-    { id: '/shop', label: 'ဆိုင်', icon: ShoppingCart },
-    { id: '/wallet', label: 'ဝေါလက်', icon: Wallet },
-    { id: '/social', label: 'ကြေညာချက်', icon: Globe },
-    { id: '/setting', label: 'ဆက်တင်', icon: Settings },
+    { id: '/shop', label: 'Shop', icon: ShoppingCart },
+    { id: '/wallet', label: 'History', icon: Clock },
+    { id: '/social', label: 'Sociaal', icon: Globe },
+    { id: '/setting', label: 'Setting', icon: Settings },
   ];
 
   return (
