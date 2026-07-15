@@ -137,7 +137,6 @@ export default function Topup() {
 
     const rawSelectedPrice = selectedPackage.price || selectedPackage.amount || selectedPackage.price_usd || selectedPackage.original_price || 0;
     const mmkPrice = calculateMMK(rawSelectedPrice);
-    const pkgId = selectedPackage.id || selectedPackage.code || selectedPackage.packageId;
 
     const confirmMsg = `${playerName} အကောင့်သို့ ${selectedPackage.name} အား ${mmkPrice} Ks ဖြင့် ဝယ်ယူမည်မှာ သေချာပါသလား?`;
     if (!window.confirm(confirmMsg)) return;
@@ -149,7 +148,8 @@ export default function Topup() {
         playerId,
         serverId: needsServerId ? serverId : "",
         playerName,
-        packageId: pkgId,
+        // 💡 ပြင်ဆင်ချက်: Provider က နာမည်တောင်းသဖြင့် packageId နေရာတွင် နာမည်အမှန်ကိုသာ ပို့ပေးပါမည်
+        packageId: selectedPackage.name, 
         packageName: selectedPackage.name,
         price: mmkPrice 
       }, {
