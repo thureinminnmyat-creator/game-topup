@@ -22,13 +22,11 @@ export default function Topup() {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [needsServerId, setNeedsServerId] = useState(false); 
 
-  // 💡 အသစ်ထည့်ထားသော State များ (မှတ်ထားသော ID များနှင့် ပြေစာအတွက်)
   const [savedAccounts, setSavedAccounts] = useState([]);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
 
   useEffect(() => {
-    // LocalStorage ထဲမှ ယခင်ဝယ်ဖူးသော ID များကို ဆွဲထုတ်မည်
     const localAccounts = JSON.parse(localStorage.getItem(`saved_accounts_${gameCode}`) || '[]');
     setSavedAccounts(localAccounts);
 
@@ -37,7 +35,6 @@ export default function Topup() {
         const token = localStorage.getItem('token');
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
-        // ၁။ USD Rate
         try {
           const settingRes = await axios.get('https://topup-bk-production.up.railway.app/api/wallet/settings', config);
           if (settingRes.data && settingRes.data.success && settingRes.data.setting?.usdRate) {
@@ -45,7 +42,6 @@ export default function Topup() {
           }
         } catch (err) {}
 
-        // ၂။ Fields API (Server ID လို/မလို စစ်ရန်)
         try {
           const fieldsRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/fields`);
           const fieldsData = fieldsRes.data.data; 
@@ -68,7 +64,6 @@ export default function Topup() {
           setNeedsServerId(true); 
         }
 
-        // ၃။ ဂိမ်း Packages 
         const catalogRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/catalogue`);
         let fetchedPackages = [];
         if (Array.isArray(catalogRes.data)) fetchedPackages = catalogRes.data;
@@ -126,7 +121,6 @@ export default function Topup() {
     return Math.ceil(price * rate); 
   };
 
-  // Toast ဖြင့် သေချာလား မေးမည့်အပိုင်း
   const handlePurchase = () => {
     const errorStyle = { background: '#1A2235', color: '#fff', border: '1px solid #EF4444' };
     
@@ -176,7 +170,6 @@ export default function Topup() {
     });
   };
 
-  // တကယ် API ခေါ်မည့် အပိုင်း
   const executePurchase = async (mmkPrice) => {
     setPurchasing(true);
     const loadingToast = toast.loading('ဝယ်ယူနေပါသည်...', { style: { background: '#1A2235', color: '#fff' }});
@@ -198,15 +191,15 @@ export default function Topup() {
       if (response.data && response.data.success) {
         toast.dismiss(loadingToast);
 
-        // 💡 ဝယ်ယူမှု အောင်မြင်ပါက Player ID အချက်အလက်ကို LocalStorage တွင် မှတ်သိမ်းမည်
         const currentAccount = { playerId, serverId, playerName, gameCode };
-        const updatedAccounts = [currentAccount, ...savedAccounts.filter(acc => acc.playerId !== playerId)].slice(0, 5); // နောက်ဆုံး ၅ ခုသာ မှတ်မည်
+        const updatedAccounts = [currentAccount, ...savedAccounts.filter(acc => acc.playerId !== playerId)].slice(0, 5);
         localStorage.setItem(`saved_accounts_${gameCode}`, JSON.stringify(updatedAccounts));
         setSavedAccounts(updatedAccounts);
 
-        // 💡 ပြေစာ (Receipt) ပြရန် Data သတ်မှတ်ခြင်း
+        // 💡 ပြေစာအချက်အလက်တွင် Order ID နှင့် Game Name အသစ်ထည့်သွင်းခြင်း
         setReceiptData({
-          gameCode,
+          orderId: response.data.order?._id || `TXN-${Math.floor(Math.random() * 100000000)}`,
+          gameName: gameCode.toUpperCase(),
           playerName,
           playerId,
           serverId,
@@ -226,7 +219,6 @@ export default function Topup() {
     }
   };
 
-  // မှတ်ထားသော အကောင့်ကို နှိပ်ပါက အလိုအလျောက် ဖြည့်ပေးမည့် Function
   const handleSelectSavedAccount = (account) => {
     setPlayerId(account.playerId);
     if (needsServerId) setServerId(account.serverId);
@@ -242,12 +234,11 @@ export default function Topup() {
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24 relative">
       <Toaster position="top-center" reverseOrder={false} />
 
-      {/* 💡 ပြေစာ (Receipt Modal) */}
+      {/* 💡 ပြေစာ (Receipt Modal) အသစ်ပြင်ဆင်ချက် */}
       {showReceipt && receiptData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in-up">
           <div className="bg-[#1A2235] w-full max-w-sm rounded-2xl p-6 border border-teal-500/50 shadow-2xl relative">
             
-            {/* Logo ပုံ */}
             <div className="flex justify-center -mt-12 mb-4">
                <img 
                  src="/images/logo.jpg" 
@@ -264,20 +255,38 @@ export default function Topup() {
             </div>
 
             <div className="bg-[#121722] rounded-xl p-4 space-y-4 text-sm border border-slate-700/50">
+              
+              {/* 💡 Order ID အသစ် ထည့်သွင်းထားသော နေရာ */}
+              <div className="flex justify-between items-center border-b border-slate-700/80 pb-3">
+                <span className="text-gray-400">Order ID</span>
+                <span className="font-mono text-gray-300 text-[11px] text-right break-all ml-4 bg-slate-800 px-2 py-1 rounded">
+                  {receiptData.orderId}
+                </span>
+              </div>
+
+              {/* 💡 ဂိမ်းအမည် အသစ် ထည့်သွင်းထားသော နေရာ */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">ဂိမ်းအမည်</span>
+                <span className="font-black tracking-wide text-teal-400">{receiptData.gameName}</span>
+              </div>
+
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">အကောင့်အမည်</span>
                 <span className="font-bold text-white">{receiptData.playerName}</span>
               </div>
+              
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Player ID</span>
                 <span className="font-bold text-white text-right">
                   {receiptData.playerId} {receiptData.serverId && <><br/><span className="text-xs text-gray-500">({receiptData.serverId})</span></>}
                 </span>
               </div>
+
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">ပက်ကေ့ချ်</span>
                 <span className="font-bold text-teal-400 text-right w-1/2 line-clamp-2">{receiptData.packageName}</span>
               </div>
+
               <div className="border-t border-slate-700/80 pt-3 flex justify-between items-center">
                 <span className="text-gray-300 font-bold">ကျသင့်ငွေ စုစုပေါင်း</span>
                 <span className="text-lg font-black text-teal-400">{receiptData.price} Ks</span>
@@ -307,7 +316,6 @@ export default function Topup() {
       </div>
 
       <div className="p-4 space-y-6">
-        {/* အဆင့် ၁: Player အချက်အလက်များ ထည့်သွင်းခြင်း */}
         <div className="bg-[#rgba] p-5 rounded-2xl border border-slate-700 shadow-lg">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-7 h-7 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-full flex items-center justify-center text-xs font-bold">1</div>
@@ -347,7 +355,6 @@ export default function Topup() {
             {checkingName ? 'စစ်ဆေးနေပါသည်...' : 'နာမည် စစ်ဆေးမည် (Check Name)'}
           </button>
 
-          {/* 💡 မှတ်ထားသော အကောင့်များ (Saved Accounts) ပြသမည့် နေရာ */}
           {savedAccounts.length > 0 && !playerName && (
             <div className="mt-5 border-t border-slate-700/50 pt-4 animate-fade-in-up">
               <div className="flex items-center gap-2 mb-3 text-gray-400">
@@ -386,7 +393,6 @@ export default function Topup() {
           )}
         </div>
 
-        {/* အဆင့် ၂: Package ရွေးချယ်ခြင်း */}
         <div className="bg-[#rgba] p-5 rounded-2xl border border-slate-700 shadow-lg">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-7 h-7 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-full flex items-center justify-center text-xs font-bold">2</div>
@@ -443,7 +449,6 @@ export default function Topup() {
         </div>
       </div>
 
-      {/* Floating Checkout Bar */}
       {selectedPackage && !showReceipt && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md bg-[#1A2235] rounded-2xl p-4 shadow-2xl border border-slate-600 flex justify-between items-center z-40 animate-fade-in-up">
           <div>
