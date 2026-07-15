@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronLeft, UserCheck, ShoppingCart, Gem,  } from 'lucide-react';
+import { ChevronLeft, UserCheck, ShoppingCart, Gem } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Topup() {
   const { gameCode } = useParams();
@@ -36,27 +37,16 @@ export default function Topup() {
         } catch (err) {}
 
         // ၂။ Fields API ခေါ်ယူခြင်း (Server ID လို/မလို စစ်ရန်)
-                // 💡 Fields API စစ်ဆေးသည့်အပိုင်းကို အောက်ပါအတိုင်း ပြင်ပါ
-                // 💡 Fields API စစ်ဆေးသည့်အပိုင်း (ပိုမိုသေချာအောင် ပြင်ဆင်ထားသည်)
         try {
           const fieldsRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/fields`);
-          const fieldsData = fieldsRes.data.data; // Backend ကပေးတဲ့ response ကိုကြည့်ပါ
+          const fieldsData = fieldsRes.data.data; 
           
-          setDebugInfo(fieldsData); 
-
-          // 💡 Logic အသစ်: API ပြန်ပို့တဲ့ထဲမှာ ဘာတွေပါလဲ စစ်မည်
-          // fieldsData ထဲမှာ "userid" တစ်ခုတည်းရှိရင်ပဲ Server ID မလိုဘူးလို့ သတ်မှတ်မည်
-          
-          let hasServerId = true; // Default အနေနဲ့ serverid လိုတယ်လို့ သတ်မှတ်မည်
-
-          // အကယ်၍ fields ထဲမှာ 'zoneid', 'serverid', 'zone' စတဲ့ စာသားတွေ ပါမလာရင်ပဲ Server ID မလိုဘူးလို့ သတ်မှတ်မယ်
+          let hasServerId = true; 
           const fieldsArray = fieldsData.fields || [];
           
-          // အကယ်၍ fields ထဲမှာ 'userid' သို့မဟုတ် 'uid' တစ်ခုတည်းပဲ ပါလာရင် (သို့မဟုတ် length က 1 ဖြစ်နေရင်)
           if (fieldsArray.length === 1) {
             hasServerId = false;
           } else {
-            // MLBB လိုဂိမ်းတွေမှာ fields ထဲမှာ 'userid' နဲ့ 'zoneid' တွဲပါလာတတ်တယ်
             hasServerId = fieldsArray.some(f => 
               f.toLowerCase().includes('zone') || 
               f.toLowerCase().includes('server')
@@ -68,7 +58,6 @@ export default function Topup() {
           console.error("Fields API Error", err);
           setNeedsServerId(true); 
         }
-
 
         // ၃။ ဂိမ်း Packages 
         const catalogRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/catalogue`);
@@ -107,6 +96,10 @@ export default function Topup() {
 
       if (response.data && response.data.success) {
         setPlayerName(response.data.data.name || response.data.data.username || response.data.data.charname); 
+        toast.success("နာမည်စစ်ဆေးခြင်း အောင်မြင်ပါသည်", {
+            style: { background: '#1A2235', color: '#fff', border: '1px solid #2DD4BF' },
+            iconTheme: { primary: '#2DD4BF', secondary: '#1A2235' },
+        });
       }
     } catch (error) {
       setNameError(error.response?.data?.message || "နာမည်ရှာမတွေ့ပါ။ အချက်အလက်များ မှန်/မမှန် စစ်ဆေးပါ။");
@@ -125,12 +118,14 @@ export default function Topup() {
   };
 
   const handlePurchase = async () => {
-    if (!playerName) return alert("ကျေးဇူးပြု၍ Player နာမည်ကို အရင်စစ်ဆေးပါ။");
-    if (!selectedPackage) return alert("ဝယ်ယူမည့် ပက်ကေ့ချ်ကို ရွေးချယ်ပါ။");
+    const errorStyle = { background: '#1A2235', color: '#fff', border: '1px solid #EF4444' };
+    
+    if (!playerName) return toast.error("ကျေးဇူးပြု၍ Player နာမည်ကို အရင်စစ်ဆေးပါ။", { style: errorStyle });
+    if (!selectedPackage) return toast.error("ဝယ်ယူမည့် ပက်ကေ့ချ်ကို ရွေးချယ်ပါ။", { style: errorStyle });
     
     const token = localStorage.getItem('token');
     if (!token) {
-      alert("ဝယ်ယူရန် အကောင့်ဝင် (Login) ရန် လိုအပ်ပါသည်။");
+      toast.error("ဝယ်ယူရန် အကောင့်ဝင် (Login) ရန် လိုအပ်ပါသည်။", { style: errorStyle });
       navigate('/login');
       return;
     }
@@ -142,13 +137,15 @@ export default function Topup() {
     if (!window.confirm(confirmMsg)) return;
 
     setPurchasing(true);
+    const loadingToast = toast.loading('ဝယ်ယူနေပါသည်...', { style: { background: '#1A2235', color: '#fff' }});
+
     try {
       const response = await axios.post('https://topup-bk-production.up.railway.app/api/topup/purchase', {
         gameCode,
         playerId,
         serverId: needsServerId ? serverId : "",
         playerName,
-        // 💡 ပြင်ဆင်ချက်: Provider က နာမည်တောင်းသဖြင့် packageId နေရာတွင် နာမည်အမှန်ကိုသာ ပို့ပေးပါမည်
+        // 💡 Provider က နာမည်တောင်းသဖြင့် ID အစား Catalogue Name အတိအကျကိုသာ ပို့ပေးပါမည်
         packageId: selectedPackage.name, 
         packageName: selectedPackage.name,
         price: mmkPrice 
@@ -157,11 +154,18 @@ export default function Topup() {
       });
 
       if (response.data && response.data.success) {
-        alert("ဝယ်ယူခြင်း အောင်မြင်ပါသည်။");
+        toast.success("ဝယ်ယူခြင်း အောင်မြင်ပါသည်။", {
+          id: loadingToast,
+          style: { background: '#1A2235', color: '#fff', border: '1px solid #2DD4BF' },
+          iconTheme: { primary: '#2DD4BF', secondary: '#1A2235' },
+        });
         navigate('/wallet'); 
       }
     } catch (error) {
-      alert(error.response?.data?.message || "ဝယ်ယူခြင်း မအောင်မြင်ပါ။ လက်ကျန်ငွေ လုံလောက်မှု ရှိ/မရှိ စစ်ဆေးပါ။");
+      toast.error(error.response?.data?.message || "ဝယ်ယူခြင်း မအောင်မြင်ပါ။", {
+        id: loadingToast,
+        style: errorStyle,
+      });
     } finally {
       setPurchasing(false);
     }
@@ -169,6 +173,9 @@ export default function Topup() {
 
   return (
     <div className="min-h-screen bg-[#rgba] text-white font-sans pb-24">
+      {/* 💡 Toaster Component ထည့်သွင်းထားပါသည် */}
+      <Toaster position="top-center" reverseOrder={false} />
+
       <div className="flex items-center justify-between p-4 bg-[#rgba] sticky top-0 z-10 shadow-md border-b border-slate-700/50">
         <div className="flex items-center">
           <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-400 hover:text-white transition">
@@ -176,13 +183,9 @@ export default function Topup() {
           </button>
           <h2 className="text-lg font-bold ml-2 uppercase tracking-wide">{gameCode} Top-up</h2>
         </div>
-        
       </div>
 
       <div className="p-4 space-y-6">
-        
-      
-
         {/* အဆင့် ၁: Player အချက်အလက်များ ထည့်သွင်းခြင်း */}
         <div className="bg-[#rgba] p-5 rounded-2xl border border-slate-700 shadow-lg">
           <div className="flex items-center gap-3 mb-5">
