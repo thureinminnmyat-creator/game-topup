@@ -42,16 +42,22 @@ export default function Topup() {
           }
         } catch (err) {}
 
+                // ၂။ Fields API (Server ID လို/မလို စစ်ရန်)
         try {
           const fieldsRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/fields`);
-          const fieldsData = fieldsRes.data.data; 
+          
+          // Backend မှ လာသော Data အတိအကျကို ယူရန်
+          const responseData = fieldsRes.data.data || fieldsRes.data; 
+          
+          // 💡 အဓိက ပြင်ဆင်ချက်: RapidAPI ၏ အသစ်ပြောင်းလဲသွားသော ပုံစံအရ `info.fields` ထဲမှ သွားယူရပါမည်
+          const fieldsArray = responseData?.info?.fields || responseData?.fields || [];
           
           let hasServerId = true; 
-          const fieldsArray = fieldsData.fields || [];
           
-          if (fieldsArray.length === 1) {
-            hasServerId = false;
+          if (fieldsArray.length <= 1) {
+            hasServerId = false; // userid တစ်ခုတည်းသာ ရှိလျှင်
           } else {
+            // 'server' သို့မဟုတ် 'zone' စာသားပါလျှင် Server ID လိုအပ်သည်ဟု သတ်မှတ်မည်
             hasServerId = fieldsArray.some(f => 
               f.toLowerCase().includes('zone') || 
               f.toLowerCase().includes('server')
@@ -61,8 +67,9 @@ export default function Topup() {
           setNeedsServerId(hasServerId);
         } catch (err) {
           console.error("Fields API Error", err);
-          setNeedsServerId(true); 
+          setNeedsServerId(true); // Error တက်လျှင် Default အနေဖြင့် Server ID တောင်းထားပါမည်
         }
+
 
         const catalogRes = await axios.get(`https://topup-bk-production.up.railway.app/api/topup/games/${gameCode}/catalogue`);
         let fetchedPackages = [];
