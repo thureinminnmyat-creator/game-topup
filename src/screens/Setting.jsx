@@ -185,7 +185,7 @@ export default function Setting() {
       {/* ၃။ Connect to Admin */}
       <h3 className="text-sm font-bold text-gray-400 mb-3 px-2">အက်ဒမင်နှင့် ဆက်သွယ်ရန်</h3>
       <div className="bg-[#rgba] rounded-2xl border border-slate-700 shadow-lg mb-6 flex justify-around p-4">
-        <button onClick={() => window.open('https://m.me/your_page', '_blank')} className="text-blue-400 text-sm font-bold hover:underline">
+        <button onClick={() => window.open('https://t.me/KSP2D3D')} className="text-blue-400 text-sm font-bold hover:underline">
           Facebook
         </button>
         <button onClick={() => window.open('viber://chat?number=09xxxxxxxxx', '_blank')} className="text-purple-400 text-sm font-bold hover:underline">
